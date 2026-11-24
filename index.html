@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Claude 产出</title>
+<meta name="viewport" content="width=1100">
+<style>
+  :root{--ink:#1d2330;--mute:#5b6472;--line:#d5d9df;--soft:#f6f7f9;--link:#1f5fa8}
+  body{margin:0;background:#fff;color:var(--ink);font:16px/1.75 "Noto Serif CJK SC","Source Han Serif SC","Songti SC",Georgia,serif}
+  main{max-width:860px;margin:0 auto;padding:56px 32px 96px}
+  h1{font-size:32px;margin:0 0 8px;font-weight:700}
+  h2{font-size:20px;margin:40px 0 10px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+  .sub{color:var(--mute);font-size:14.5px}
+  a{color:var(--link);text-decoration:none}
+  a:hover{text-decoration:underline}
+  article{border:1px solid var(--line);padding:16px 18px;margin:14px 0}
+  article h3{margin:0 0 4px;font-size:18px}
+  .meta{color:var(--mute);font-size:13.5px;margin:0 0 8px}
+  p{margin:8px 0}
+  ol{padding-left:1.2em}
+  code{font:13.5px Menlo,Consolas,monospace;background:var(--soft);padding:1px 5px}
+</style>
+</head>
+<body>
+<main>
+<h1>Claude 产出</h1>
+<p class="sub">这里集中放 Claude 做的说明页、图和报告。每一项单独一个页面，从这页进入。新增内容时，在对应目录放文件，并在下面的列表加一条。</p>
+
+<h2>目录</h2>
+
+<article>
+  <h3><a href="harness/framework.html">F1 Harness 目标框架说明</a></h3>
+  <p class="meta">2026-11-24 · F1 积木分拣 · 说明页</p>
+  <p>用第一性原理说明目标框架的六个组件各自解决什么问题，再用“立放方块放入方孔”把整条流程串起来，包括每一步出错时谁处理、怎么处理。最后比较换任务时哪些不用改、哪些要改。</p>
+</article>
+
+<h2>以后怎么加一项</h2>
+<ol>
+  <li>在仓库里建一个目录，放进 HTML（或 PDF、图）。页面尽量自包含，不依赖外部脚本。</li>
+  <li>在本页“目录”下按上面的格式加一条：标题、日期、一句话说明、链接。</li>
+  <li>提交到 <code>main</code>。GitHub Pages 会自动更新，通常一两分钟。</li>
+</ol>
+<p class="sub">仓库地址：<a href="https://github.com/BrunonXU/MyClaude-Aritfacts">BrunonXU/MyClaude-Aritfacts</a>。本页只做索引，不复制各项的正文。</p>
+</main>
+</body>
+</html>
