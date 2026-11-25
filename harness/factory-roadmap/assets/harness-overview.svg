@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 368" width="1160" height="368" role="img" aria-labelledby="title desc" xml:lang="zh-CN">
+<title id="title">工厂作业的执行与恢复闭环</title>
+<desc id="desc">观察现场，程序选择下一步，调用技能并核对结果。任务未完成时继续观察，全部完成后结束。结果不达标，程序在限定次数内调整再试；重试用尽由大模型提出新策略，交回程序。有效解法经过独立验证后供后续任务复用。</desc>
+<defs>
+  <marker id="navy" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1l6 3-6 3" fill="none" stroke="#526b80" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="blue" markerWidth="8" markerHeight="8" refX="6.8" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1l6 3-6 3" fill="none" stroke="#195ba2" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <style>
+    text{font-family:'Noto Sans CJK SC','PingFang SC','Microsoft YaHei',sans-serif;fill:#172b3f} .strong{font-weight:700;font-size:23px}.body{font-size:16px;fill:#485e72}.label{font-size:15px;fill:#195ba2;font-weight:500}.low{font-weight:700;font-size:20px}.icon{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.s{fill:none;stroke:#526b80;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#navy)}.b{fill:none;stroke:#195ba2;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#blue)}
+  </style>
+</defs>
+<rect width="1160" height="368" fill="white"/>
+<!-- Main loop and task completion -->
+<path class="b" d="M885 87V39H116V85"/>
+
+<text x="504" y="31" text-anchor="middle" class="label">本步完成，继续下一步</text>
+<path class="s" d="M964 144h45"/>
+<!-- Each connector is independent, so every skill transition has a directional head. -->
+<path class="s" d="M219 144h45"/><path class="s" d="M465 144h47"/><path class="s" d="M712 144h48"/>
+<g>
+ <rect x="18" y="86" width="199" height="117" rx="6" fill="#f7f9fb" stroke="#afbdc9"/>
+ <g transform="translate(37 101)" class="icon" color="#195ba2"><path d="M1 9V3h6m14 6V3h-6M1 14v6h6m14-6v6h-6"/><circle cx="11" cy="11.5" r="3"/></g>
+ <text x="36" y="156" class="strong">观察现场</text><text x="36" y="183" class="body">识别物料与夹持状态</text>
+</g>
+<g>
+ <rect x="268" y="86" width="195" height="117" rx="6" fill="#172f48"/>
+ <g transform="translate(286 100)" class="icon" color="#b7d7f2"><rect x="1" y="1" width="8" height="5" rx="1"/><rect x="13" y="14" width="8" height="5" rx="1"/><path d="M5 6v10h8m-2-3 3 3-3 3m0-15h9"/></g>
+ <text x="286" y="156" class="strong" style="fill:white">选择下一步</text><text x="286" y="183" class="body" style="fill:#deebf9">程序判断工序与分支</text>
+</g>
+<g>
+ <rect x="516" y="86" width="194" height="117" rx="6" fill="#f7f9fb" stroke="#afbdc9"/>
+ <g transform="translate(534 100)" class="icon" color="#195ba2"><path d="m2 9 8-5 8 5-8 5zm0 0v8l8 5 8-5V9m-8 5v8"/></g>
+ <text x="534" y="156" class="strong">执行技能</text><text x="534" y="183" class="body">调用抓取、移动或放置</text>
+</g>
+<g>
+ <rect x="765" y="86" width="198" height="117" rx="6" fill="#eaf2fa" stroke="#7e9fc2"/>
+ <g transform="translate(784 100)" class="icon" color="#195ba2"><path d="M3 3h7m-7 0v7m15-7h-4m5 0v6m0 5v6h-7m-9 0h5m-5 0v-5m3-3 3 3 7-8"/></g>
+ <text x="783" y="156" class="strong">核对结果</text><text x="783" y="183" class="body">用现场反馈确认成败</text>
+</g>
+<g>
+ <rect x="1014" y="119" width="131" height="50" rx="25" fill="#fff" stroke="#6c8397"/>
+ <path d="m1029 144 4 4 8-9" fill="none" stroke="#195ba2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+ <text x="1083" y="150" text-anchor="middle" font-size="17" font-weight="700">任务完成</text>
+</g>
+<!-- Local retries and model escalation -->
+<path class="b" d="M885 204v60"/><text x="900" y="243" class="label">本步未达标</text>
+<path class="b" d="M765 298H619v-92"/><text x="691" y="289" class="label" text-anchor="middle">调整后再执行</text>
+<path class="b" d="M765 320H487" stroke-dasharray="5 5"/><text x="623" y="341" class="label" text-anchor="middle">重试次数用尽</text>
+<path class="b" d="M370 266v-60"/><text x="383" y="243" class="label">交回程序决定</text>
+<g>
+ <rect x="765" y="267" width="238" height="73" rx="6" fill="#f4f8fc" stroke="#96adc4"/>
+ <text x="782" y="296" class="low">程序局部重试</text><text x="782" y="322" class="body">换视角或抓点，限定次数</text>
+</g>
+<g>
+ <rect x="268" y="267" width="215" height="73" rx="6" fill="#eaf2fa" stroke="#7e9fc2"/>
+ <text x="285" y="296" class="low">大模型提出新策略</text><text x="285" y="322" class="body">结合失败记录调整做法</text>
+</g>
+<path class="s" d="M267 303h-48" stroke-dasharray="4 4"/><g><rect x="18" y="267" width="197" height="73" rx="6" fill="#fff" stroke="#b5c0cb" stroke-dasharray="4 3"/><text x="36" y="296" class="low">验证并复用</text><text x="36" y="322" class="body">独立验证后保存解法</text></g>
+</svg>
