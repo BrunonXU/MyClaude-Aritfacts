@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>具身智能 × 传统自动化：融合落地框架</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{
+    --bg:#F6F6F3;--card:#FFFFFF;--ink:#0B0F17;--ink2:#2A303B;--mute:#646C78;--faint:#9AA1AC;
+    --line:#E2E4E8;--soft:#EEF0F3;
+    --blue:#2457F5;--blue-soft:#EAF0FF;--green:#0C9A6A;--green-soft:#E7F6EF;--orange:#DE7414;--orange-soft:#FDF1E5;
+    --sans:"Inter","SF Pro Display","PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei","WenQuanYi Micro Hei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#1A1D23;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .viewport{position:fixed;inset:0;overflow:hidden}
+  .deck{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center center}
+  .slide{position:absolute;inset:0;display:none;background:var(--bg);padding:56px 88px 0;overflow:hidden}
+  .slide.active{display:block}
+  svg text{font-family:var(--sans)}
+
+  .kicker{font-size:14px;letter-spacing:.18em;color:var(--blue);font-weight:600}
+  .kicker b{color:var(--ink);font-weight:600;margin-right:10px}
+  h2{font-size:40px;line-height:1.22;margin:10px 0 8px;font-weight:700;letter-spacing:-.01em}
+  .lede{font-size:19px;color:var(--mute);margin:0 0 24px;max-width:1240px;line-height:1.55}
+  .foot{position:absolute;left:88px;right:88px;bottom:26px;display:flex;justify-content:space-between;font-size:13px;color:var(--faint);letter-spacing:.06em}
+  .foot .pg{font-variant-numeric:tabular-nums;color:var(--mute)}
+  .progress{position:absolute;left:0;bottom:0;height:3px;background:var(--blue)}
+
+  /* cover */
+  .cover{background:#0A0C11;color:#fff;padding:88px 96px}
+  .cover .kicker{color:#7FA0FF}
+  .cover h1{font-size:76px;line-height:1.12;margin:30px 0 22px;font-weight:700;letter-spacing:-.015em}
+  .cover h1 span{color:#8FA9FF}
+  .cover .sub{font-size:22px;color:#A9B0BC;max-width:760px;line-height:1.6}
+  .cover .agenda{position:absolute;left:96px;right:96px;bottom:84px;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;border-top:1px solid #2A2F39;padding-top:26px}
+  .cover .agenda div{font-size:17px;color:#D5D9E0;line-height:1.5}
+  .cover .agenda em{display:block;font-style:normal;font-size:13px;letter-spacing:.18em;color:#6F7887;margin-bottom:6px}
+  .cover .foot{color:#4F5663}
+  .cover .foot .pg{color:#6F7887}
+  .cover-art{position:absolute;right:96px;top:120px}
+
+  /* principles strip */
+  .strip{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:10px}
+  .strip div{border-top:2px solid var(--ink);padding-top:14px}
+  .strip h4{margin:0 0 6px;font-size:20px}
+  .strip p{margin:0;font-size:16px;color:var(--mute);line-height:1.55}
+
+  /* scenario */
+  .split{display:grid;grid-template-columns:860px 1fr;gap:44px}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:6px}
+  .steps div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .steps b{display:block;font-size:15px;margin-bottom:4px}
+  .steps b i{font-style:normal;color:var(--blue);margin-right:6px;font-variant-numeric:tabular-nums}
+  .steps span{font-size:14px;color:var(--mute);line-height:1.5}
+  .callout{margin-top:12px;display:flex;align-items:center;gap:12px;font-size:15.5px;color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 16px}
+  .callout .o{color:var(--orange);font-weight:700}.callout .g{color:var(--green);font-weight:700}
+  .callout .arr{color:var(--faint)}
+  .cmp h3{margin:0 0 12px;font-size:20px}
+  .ph{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  .ph div{height:150px;border:1.5px dashed #A8B3C7;border-radius:12px;background:repeating-linear-gradient(135deg,#FAFBFC 0 10px,#F1F3F6 10px 20px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .ph strong{font-size:17px;color:var(--ink2);letter-spacing:.08em}
+  .ph span{font-size:13.5px;color:var(--mute);margin-top:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.5;background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  th,td{padding:8px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:none}
+  th{font-size:13px;color:var(--mute);font-weight:600;background:#FAFAFB;letter-spacing:.04em}
+  td:first-child{color:var(--mute);white-space:nowrap;width:88px}
+  td.f1{color:var(--ink)}
+  .tbd{color:var(--orange);font-weight:600}
+  .note{font-size:12.5px;color:var(--faint);margin-top:10px;line-height:1.5}
+
+  .hint{position:fixed;right:18px;top:12px;font:12px var(--sans);color:#8A919C;opacity:.8}
+
+  @page{size:1600px 900px;margin:0}
+  @media print{
+    html,body{background:#fff;height:auto}
+    .viewport{position:static;overflow:visible}
+    .deck{position:static;transform:none!important;width:1600px;height:auto}
+    .slide{display:block!important;position:relative;width:1600px;height:900px;break-after:page;page-break-after:always}
+    .slide:last-child{break-after:auto;page-break-after:auto}
+    .hint{display:none}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+<div class="viewport"><div class="deck" id="deck">
+
+<!-- 0 封面 -->
+<section class="slide cover">
+  <div class="kicker">内部汇报　·　2026-11-25</div>
+  <h1>具身智能 × 传统自动化<br><span>融合落地框架</span></h1>
+  <div class="sub">工厂落地趋势与本体演进，F1 Harness 的整体框架与算法组件，以及一个上下料分拣的工厂场景。</div>
+  <svg class="cover-art" width="420" height="420" viewBox="0 0 420 420" aria-hidden="true">
+    <circle cx="210" cy="210" r="160" fill="none" stroke="#2A2F39" stroke-width="1.5"/>
+    <circle cx="210" cy="210" r="110" fill="none" stroke="#1C2029" stroke-width="1"/>
+    <path d="M210,50 A160,160 0 0 1 370,210" fill="none" stroke="#2457F5" stroke-width="3"/>
+    <g font-size="15" fill="#A9B0BC" text-anchor="middle">
+      <circle cx="210" cy="50" r="6" fill="#2457F5"/><text x="210" y="30">感知</text>
+      <circle cx="370" cy="210" r="6" fill="#8FA9FF"/><text x="400" y="215" text-anchor="end" dx="20">决策</text>
+      <circle cx="210" cy="370" r="6" fill="#5E6676"/><text x="210" y="402">执行</text>
+      <circle cx="50" cy="210" r="6" fill="#0C9A6A"/><text x="20" y="215" text-anchor="start" dx="-20">经验</text>
+    </g>
+    <text x="210" y="206" text-anchor="middle" font-size="22" fill="#fff" font-weight="700">闭环</text>
+    <text x="210" y="232" text-anchor="middle" font-size="13" fill="#6F7887" letter-spacing="2">越用越快</text>
+  </svg>
+  <div class="agenda">
+    <div><em>01　趋势</em>工厂落地趋势与本体演进</div>
+    <div><em>02　框架</em>宏观闭环与算法组件</div>
+    <div><em>03　场景</em>九宫格上下料，F1 与 AgiBot G2 对比</div>
+  </div>
+</section>
+
+<!-- 1 趋势 -->
+<section class="slide">
+  <div class="kicker"><b>01</b>落地趋势</div>
+  <h2>工厂从自动化为主，走向具身为主</h2>
+  <p class="lede">具身智能在工厂里的占比从约 20% 提升到约 80%，长远全面具身；支撑它的是本体从固定机械臂，到轮式移动操作，再到人形。</p>
+  <svg viewBox="0 0 1424 600" width="1424" height="600" role="img" aria-label="落地趋势与本体演进">
+    <defs>
+      <marker id="t-ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0L10,5L0,10z" fill="#0B0F17"/></marker>
+    </defs>
+    <!-- timeline -->
+    <line x1="0" y1="20" x2="1410" y2="20" stroke="#0B0F17" stroke-width="2" marker-end="url(#t-ar)"/>
+    <g font-size="15" fill="#646C78" letter-spacing="1">
+      <circle cx="6" cy="20" r="6" fill="#0B0F17"/><circle cx="518" cy="20" r="6" fill="#0B0F17"/><circle cx="1030" cy="20" r="6" fill="#0B0F17"/>
+    </g>
+    <g font-size="26" font-weight="700" fill="#0B0F17">
+      <text x="0" y="66">现在</text><text x="512" y="66">过渡期</text><text x="1024" y="66">长远</text>
+    </g>
+    <g font-size="16" fill="#646C78">
+      <text x="62" y="66">传统自动化为主</text><text x="600" y="66">具身成为主力</text><text x="1084" y="66">全面具身</text>
+    </g>
+    <!-- share -->
+    <g font-size="14" fill="#9AA1AC" letter-spacing="1">
+      <text x="0" y="112">具身占比（趋势判断）</text><text x="512" y="112">具身占比</text><text x="1024" y="112">具身占比</text>
+    </g>
+    <g font-weight="700" fill="#2457F5">
+      <text x="0" y="176" font-size="64">≈20<tspan font-size="30">%</tspan></text>
+      <text x="512" y="176" font-size="64">≈80<tspan font-size="30">%</tspan></text>
+      <text x="1024" y="176" font-size="64">100<tspan font-size="30">%</tspan></text>
+    </g>
+    <!-- bars: grey = traditional, blue = embodied -->
+    <rect x="0" y="198" width="320" height="14" fill="#C9CDD4"/><rect x="320" y="198" width="80" height="14" fill="#2457F5"/>
+    <rect x="512" y="198" width="80" height="14" fill="#C9CDD4"/><rect x="592" y="198" width="320" height="14" fill="#2457F5"/>
+    <rect x="1024" y="198" width="400" height="14" fill="#2457F5"/>
+    <g font-size="14" fill="#646C78">
+      <text x="0" y="236">传统自动化 ≈80%</text><text x="400" y="236" text-anchor="end" fill="#2457F5">具身 ≈20%</text>
+      <text x="512" y="236">自动化 ≈20%</text><text x="912" y="236" text-anchor="end" fill="#2457F5">具身 ≈80%</text>
+      <text x="1424" y="236" text-anchor="end" fill="#2457F5">具身 100%</text>
+    </g>
+    <line x1="0" y1="272" x2="1424" y2="272" stroke="#E2E4E8" stroke-width="1"/>
+    <text x="0" y="304" font-size="14" fill="#9AA1AC" letter-spacing="1">本体演进</text>
+
+    <!-- chevrons -->
+    <g fill="none" stroke="#C9CDD4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M446,384 L466,404 L446,424"/><path d="M958,384 L978,404 L958,424"/>
+    </g>
+
+    <!-- fixed arm -->
+    <g>
+      <rect x="40" y="320" width="360" height="160" rx="14" fill="#FFFFFF" stroke="#E2E4E8"/>
+      <line x1="70" y1="458" x2="370" y2="458" stroke="#C9CDD4" stroke-width="2"/>
+      <rect x="150" y="430" width="80" height="28" rx="4" fill="#0B0F17"/>
+      <rect x="172" y="402" width="36" height="30" fill="#2A303B"/>
+      <g stroke="#0B0F17" stroke-width="13" stroke-linecap="round" fill="none"><path d="M190,398 L236,342 L298,366"/></g>
+      <circle cx="190" cy="398" r="11" fill="#fff" stroke="#0B0F17" stroke-width="3"/>
+      <circle cx="236" cy="342" r="9" fill="#fff" stroke="#0B0F17" stroke-width="3"/>
+      <g stroke="#2457F5" stroke-width="4" stroke-linecap="round"><line x1="290" y1="378" x2="310" y2="378"/><line x1="292" y1="378" x2="292" y2="398"/><line x1="308" y1="378" x2="308" y2="398"/></g>
+      <rect x="284" y="430" width="34" height="28" rx="3" fill="#EAF0FF" stroke="#2457F5" stroke-width="1.5"/>
+      <rect x="62" y="336" width="74" height="24" rx="12" fill="#EEF0F3"/><text x="99" y="353" font-size="13" text-anchor="middle" fill="#646C78">固定工位</text>
+    </g>
+    <!-- wheeled AGV + arm -->
+    <g>
+      <rect x="552" y="320" width="360" height="160" rx="14" fill="#FFFFFF" stroke="#2457F5" stroke-width="2"/>
+      <rect x="652" y="408" width="150" height="34" rx="8" fill="#0B0F17"/>
+      <circle cx="678" cy="448" r="11" fill="#fff" stroke="#0B0F17" stroke-width="3"/><circle cx="776" cy="448" r="11" fill="#fff" stroke="#0B0F17" stroke-width="3"/>
+      <rect x="716" y="350" width="20" height="60" fill="#2A303B"/>
+      <rect x="706" y="326" width="40" height="26" rx="6" fill="#0B0F17"/><circle cx="734" cy="339" r="4" fill="#2457F5"/>
+      <g stroke="#0B0F17" stroke-width="10" stroke-linecap="round" fill="none"><path d="M736,366 L788,384 L826,360"/><path d="M716,366 L670,386 L640,364"/></g>
+      <g stroke="#2457F5" stroke-width="4" stroke-linecap="round"><line x1="826" y1="360" x2="840" y2="350"/><line x1="826" y1="360" x2="840" y2="368"/><line x1="640" y1="364" x2="626" y2="354"/><line x1="640" y1="364" x2="626" y2="372"/></g>
+      <g stroke="#2457F5" stroke-width="2" fill="none"><line x1="642" y1="468" x2="812" y2="468"/><path d="M650,462 L642,468 L650,474"/><path d="M804,462 L812,468 L804,474"/></g>
+      <rect x="806" y="334" width="92" height="24" rx="12" fill="#2457F5"/><text x="852" y="351" font-size="13" text-anchor="middle" fill="#fff" font-weight="600">F1 所在阶段</text>
+    </g>
+    <!-- humanoid -->
+    <g>
+      <rect x="1064" y="320" width="360" height="160" rx="14" fill="#FFFFFF" stroke="#E2E4E8"/>
+      <line x1="1094" y1="466" x2="1394" y2="466" stroke="#C9CDD4" stroke-width="2"/>
+      <circle cx="1244" cy="340" r="13" fill="#0B0F17"/>
+      <rect x="1224" y="358" width="40" height="52" rx="10" fill="#0B0F17"/>
+      <g stroke="#0B0F17" stroke-width="8" stroke-linecap="round" fill="none">
+        <path d="M1224,366 L1208,396 L1212,420"/><path d="M1264,366 L1280,396 L1276,420"/>
+        <path d="M1234,410 L1230,438 L1234,462"/><path d="M1254,410 L1258,438 L1254,462"/>
+        <path d="M1226,464 L1238,464"/><path d="M1250,464 L1262,464"/>
+      </g>
+      <circle cx="1249" cy="337" r="3" fill="#2457F5"/>
+      <rect x="1086" y="336" width="74" height="24" rx="12" fill="#EEF0F3"/><text x="1123" y="353" font-size="13" text-anchor="middle" fill="#646C78">双足行走</text>
+    </g>
+    <!-- captions -->
+    <g font-size="22" font-weight="700" fill="#0B0F17">
+      <text x="40" y="520">早期 · 固定位置机械臂</text>
+      <text x="552" y="520">当前 · AGV + 机械臂（轮式）</text>
+      <text x="1064" y="520">未来 · 双足 / 人形</text>
+    </g>
+    <g font-size="16" fill="#646C78">
+      <text x="40" y="550">单工位、节拍高；换产线要重新部署</text>
+      <text x="552" y="550">跨工位移动，一台覆盖多个岗位</text>
+      <text x="1064" y="550">直接进入为人设计的产线和空间</text>
+    </g>
+    <text x="0" y="592" font-size="13" fill="#9AA1AC">注：占比为趋势判断的示意，不是统计数据。</text>
+  </svg>
+  <div class="foot"><span>具身智能 × 传统自动化 · 融合落地框架</span><span class="pg"></span></div>
+</section>
+
+<!-- 2 宏观框架 -->
+<section class="slide">
+  <div class="kicker"><b>02</b>框架 · 宏观</div>
+  <h2>一个闭环，两条路径：越用越快</h2>
+  <p class="lede">感知、决策、执行、经验四步循环。见过的场景走经验复用的快路径；只有没见过的场景，才让大模型介入。</p>
+  <svg viewBox="0 0 1424 470" width="1424" height="470" role="img" aria-label="宏观闭环">
+    <defs>
+      <marker id="m-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#0B0F17"/></marker>
+      <marker id="m-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#0C9A6A"/></marker>
+      <marker id="m-o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#DE7414"/></marker>
+      <marker id="m-m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#9AA1AC"/></marker>
+    </defs>
+    <!-- LLM slow path -->
+    <rect x="375" y="0" width="270" height="66" rx="12" fill="#FDF1E5" stroke="#DE7414" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <text x="395" y="28" font-size="17" font-weight="700" fill="#0B0F17">大模型规划 <tspan fill="#DE7414" font-size="14">慢路径</tspan></text>
+    <text x="395" y="52" font-size="14" fill="#646C78">仅新场景介入，解法写回经验库</text>
+    <line x1="420" y1="130" x2="420" y2="70" stroke="#DE7414" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#m-o)"/>
+    <line x1="490" y1="68" x2="490" y2="128" stroke="#DE7414" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#m-o)"/>
+    <!-- fast path -->
+    <path d="M1274,130 L1274,98 L590,98 L590,126" fill="none" stroke="#0C9A6A" stroke-width="4" marker-end="url(#m-g)"/>
+    <text x="932" y="86" font-size="16" font-weight="700" fill="#0C9A6A" text-anchor="middle">快路径：见过的场景直接调用冻结程序，秒级完成，0 次大模型调用</text>
+
+    <!-- cards -->
+    <g>
+      <rect x="0" y="130" width="299" height="230" rx="16" fill="#fff" stroke="#E2E4E8"/>
+      <rect x="375" y="130" width="299" height="230" rx="16" fill="#fff" stroke="#E2E4E8"/>
+      <rect x="750" y="130" width="299" height="230" rx="16" fill="#fff" stroke="#E2E4E8"/>
+      <rect x="1125" y="130" width="299" height="230" rx="16" fill="#fff" stroke="#E2E4E8"/>
+      <g fill="#2457F5"><rect x="0" y="130" width="299" height="4" rx="2"/><rect x="375" y="130" width="299" height="4" rx="2"/><rect x="750" y="130" width="299" height="4" rx="2"/></g>
+      <rect x="1125" y="130" width="299" height="4" rx="2" fill="#0C9A6A"/>
+    </g>
+    <g font-size="15" font-weight="700" letter-spacing="2" fill="#2457F5">
+      <text x="28" y="176">01</text><text x="403" y="176">02</text><text x="778" y="176">03</text><text x="1153" y="176" fill="#0C9A6A">04</text>
+    </g>
+    <g font-size="30" font-weight="700" fill="#0B0F17">
+      <text x="28" y="220">感知</text><text x="403" y="220">决策 · 程序</text><text x="778" y="220">执行</text><text x="1153" y="220">反馈与经验</text>
+    </g>
+    <g font-size="17" fill="#646C78">
+      <text x="28" y="260">看清物体在哪、抓住没有</text><text x="28" y="286">每项结果都带置信度</text>
+      <text x="403" y="260">决定下一步做什么</text><text x="403" y="286">按阶段调用技能、本地重试</text>
+      <text x="778" y="260">规划路径，安全地动</text><text x="778" y="286">安全内核是唯一的放行者</text>
+      <text x="1153" y="260">记录每一次运行</text><text x="1153" y="286">成功的解法沉淀为程序</text>
+    </g>
+    <g font-size="13.5">
+      <rect x="28" y="312" width="82" height="28" rx="14" fill="#EEF0F3"/><text x="69" y="331" text-anchor="middle" fill="#2A303B">多相机</text>
+      <rect x="118" y="312" width="96" height="28" rx="14" fill="#EEF0F3"/><text x="166" y="331" text-anchor="middle" fill="#2A303B">夹爪读数</text>
+      <rect x="403" y="312" width="82" height="28" rx="14" fill="#EEF0F3"/><text x="444" y="331" text-anchor="middle" fill="#2A303B">程序库</text>
+      <rect x="493" y="312" width="82" height="28" rx="14" fill="#EEF0F3"/><text x="534" y="331" text-anchor="middle" fill="#2A303B">技能库</text>
+      <rect x="778" y="312" width="96" height="28" rx="14" fill="#EEF0F3"/><text x="826" y="331" text-anchor="middle" fill="#2A303B">路径规划</text>
+      <rect x="882" y="312" width="96" height="28" rx="14" fill="#0B0F17"/><text x="930" y="331" text-anchor="middle" fill="#fff">安全内核</text>
+      <rect x="1153" y="312" width="96" height="28" rx="14" fill="#E7F6EF"/><text x="1201" y="331" text-anchor="middle" fill="#0C9A6A">运行记录</text>
+      <rect x="1257" y="312" width="82" height="28" rx="14" fill="#E7F6EF"/><text x="1298" y="331" text-anchor="middle" fill="#0C9A6A">经验库</text>
+    </g>
+    <g stroke="#0B0F17" stroke-width="2.5">
+      <line x1="309" y1="245" x2="363" y2="245" marker-end="url(#m-a)"/>
+      <line x1="684" y1="245" x2="738" y2="245" marker-end="url(#m-a)"/>
+      <line x1="1059" y1="245" x2="1113" y2="245" marker-end="url(#m-a)"/>
+    </g>
+    <!-- feedback loop -->
+    <path d="M1274,360 L1274,404 L150,404 L150,366" fill="none" stroke="#9AA1AC" stroke-width="2" stroke-dasharray="6,5" marker-end="url(#m-m)"/>
+    <text x="712" y="436" font-size="15" fill="#646C78" text-anchor="middle">闭环反馈：每次动作之后，新的图像、关节和夹爪读数回到感知</text>
+  </svg>
+  <div class="strip">
+    <div><h4>快路径为主，大模型兜底</h4><p>常规步骤不经过大模型；它只处理程序解决不了的新情况。</p></div>
+    <div><h4>安全只有一个出口</h4><p>所有动作都经安全内核放行；其余模块只负责把事情做成，不负责说“不”。</p></div>
+    <div><h4>越用越快</h4><p>每次运行都沉淀成程序、技能和修复知识，同类场景下次直接复用。</p></div>
+  </div>
+  <div class="foot"><span>具身智能 × 传统自动化 · 融合落地框架</span><span class="pg"></span></div>
+</section>
+
+<!-- 3 算法组件 -->
+<section class="slide">
+  <div class="kicker"><b>03</b>框架 · 算法与组件</div>
+  <h2>算法组件：从看见到动作，再到经验沉淀</h2>
+  <p class="lede">一条主链从左到右执行；上方是只在新场景启动的大模型，下方是把每次运行变成可复用程序的经验沉淀。</p>
+  <svg viewBox="0 0 1424 590" width="1424" height="590" role="img" aria-label="算法组件流程">
+    <defs>
+      <marker id="c-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#0B0F17"/></marker>
+      <marker id="c-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#0C9A6A"/></marker>
+      <marker id="c-o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#DE7414"/></marker>
+      <marker id="c-m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#9AA1AC"/></marker>
+    </defs>
+    <!-- feedback on top -->
+    <path d="M1338,180 L1338,34 L84,34 L84,176" fill="none" stroke="#9AA1AC" stroke-width="2" stroke-dasharray="6,5" marker-end="url(#c-m)"/>
+    <text x="920" y="24" font-size="14" fill="#646C78" text-anchor="middle">闭环反馈：动作之后的图像、关节和夹爪读数回到感知</text>
+
+    <!-- LLM -->
+    <rect x="250" y="58" width="352" height="68" rx="12" fill="#FDF1E5" stroke="#DE7414" stroke-width="1.5" stroke-dasharray="6,4"/>
+    <text x="270" y="86" font-size="18" font-weight="700" fill="#0B0F17">大模型规划</text>
+    <text x="270" y="110" font-size="14" fill="#646C78">仅新场景介入 · 生成新程序 · 验证后入库</text>
+    <line x1="293" y1="184" x2="293" y2="130" stroke="#DE7414" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#c-o)"/>
+    <line x1="530" y1="128" x2="530" y2="176" stroke="#DE7414" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#c-o)"/>
+    <text x="285" y="162" font-size="14" fill="#DE7414" text-anchor="end" font-weight="600">没见过</text>
+    <text x="538" y="162" font-size="14" fill="#DE7414" font-weight="600">新程序</text>
+
+    <!-- main row nodes -->
+    <!-- N0 perception -->
+    <rect x="0" y="180" width="168" height="140" rx="14" fill="#fff" stroke="#E2E4E8"/>
+    <text x="16" y="210" font-size="19" font-weight="700">感知</text>
+    <rect x="12" y="224" width="144" height="40" rx="8" fill="#EAF0FF"/>
+    <text x="84" y="240" font-size="14" font-weight="600" text-anchor="middle" fill="#0B0F17">分割 + 跟踪</text>
+    <text x="84" y="257" font-size="12" text-anchor="middle" fill="#646C78">SAM 分割 · 跨帧跟踪</text>
+    <rect x="12" y="270" width="144" height="40" rx="8" fill="#EAF0FF"/>
+    <text x="84" y="286" font-size="14" font-weight="600" text-anchor="middle" fill="#0B0F17">夹爪接触判断</text>
+    <text x="84" y="303" font-size="12" text-anchor="middle" fill="#646C78">开度停在中间 = 抓住</text>
+    <!-- N1 diamond -->
+    <path d="M293,182 L377,250 L293,318 L209,250 Z" fill="#fff" stroke="#0B0F17" stroke-width="1.5"/>
+    <text x="293" y="244" font-size="15" text-anchor="middle" fill="#646C78">场景匹配</text>
+    <text x="293" y="268" font-size="18" font-weight="700" text-anchor="middle">见过吗？</text>
+    <!-- N2 program -->
+    <rect x="418" y="180" width="168" height="140" rx="14" fill="#fff" stroke="#2457F5" stroke-width="2"/>
+    <text x="434" y="210" font-size="19" font-weight="700">程序 · 技能库</text>
+    <g font-size="14" fill="#646C78"><text x="434" y="240">按阶段调用技能</text><text x="434" y="264">抓取 · 移动 · 放置</text><text x="434" y="288">分支与本地重试</text></g>
+    <!-- N3 motion planning -->
+    <rect x="627" y="180" width="168" height="140" rx="14" fill="#fff" stroke="#E2E4E8"/>
+    <text x="643" y="210" font-size="19" font-weight="700">运动规划</text>
+    <g font-size="14" fill="#646C78"><text x="643" y="240">逆解 · 碰撞检查</text><text x="643" y="264">多个候选路径</text><text x="643" y="288">一条不行就换</text></g>
+    <!-- N4 safety kernel -->
+    <rect x="836" y="180" width="168" height="140" rx="14" fill="#0B0F17"/>
+    <text x="852" y="210" font-size="19" font-weight="700" fill="#fff">安全内核</text>
+    <g font-size="14" fill="#B8BFCA"><text x="852" y="240">唯一能发动作</text><text x="852" y="264">6 类硬保护</text><text x="852" y="288">限位 · 碰撞 · 反馈</text></g>
+    <!-- N5 smoothing -->
+    <rect x="1045" y="180" width="168" height="140" rx="14" fill="#fff" stroke="#E2E4E8"/>
+    <text x="1061" y="210" font-size="19" font-weight="700">轨迹平滑</text>
+    <g font-size="14" fill="#646C78"><text x="1061" y="240">Ruckig 时间最优</text><text x="1061" y="264">限速 · 限加速度</text><text x="1061" y="288">动作平稳不抖</text></g>
+    <!-- N6 robot -->
+    <rect x="1254" y="180" width="168" height="140" rx="14" fill="#EEF0F3" stroke="#E2E4E8"/>
+    <text x="1270" y="210" font-size="19" font-weight="700">F1 执行</text>
+    <g font-size="14" fill="#646C78"><text x="1270" y="240">轮式底盘 + 双臂</text><text x="1270" y="264">回传图像</text><text x="1270" y="288">关节与夹爪读数</text></g>
+
+    <g stroke="#0B0F17" stroke-width="2.2">
+      <line x1="172" y1="250" x2="205" y2="250" marker-end="url(#c-a)"/>
+      <line x1="590" y1="250" x2="623" y2="250" marker-end="url(#c-a)"/>
+      <line x1="799" y1="250" x2="832" y2="250" marker-end="url(#c-a)"/>
+      <line x1="1008" y1="250" x2="1041" y2="250" marker-end="url(#c-a)"/>
+      <line x1="1217" y1="250" x2="1250" y2="250" marker-end="url(#c-a)"/>
+    </g>
+    <line x1="381" y1="250" x2="414" y2="250" stroke="#0C9A6A" stroke-width="3" marker-end="url(#c-g)"/>
+    <text x="397" y="240" font-size="13" fill="#0C9A6A" text-anchor="middle" font-weight="700">见过</text>
+
+    <!-- experience band -->
+    <rect x="0" y="384" width="1424" height="200" rx="16" fill="#EEF0F3"/>
+    <text x="24" y="416" font-size="14" font-weight="700" fill="#646C78" letter-spacing="2">经验沉淀 · 越用越快</text>
+    <rect x="209" y="432" width="392" height="80" rx="12" fill="#fff" stroke="#0C9A6A" stroke-width="2"/>
+    <text x="229" y="464" font-size="19" font-weight="700">经验库</text>
+    <text x="229" y="492" font-size="14" fill="#646C78">冻结程序 · 原子技能 · 修复知识 · 参数统计</text>
+    <rect x="640" y="432" width="160" height="80" rx="12" fill="#fff" stroke="#E2E4E8"/>
+    <text x="660" y="464" font-size="19" font-weight="700">漏斗评测</text>
+    <text x="660" y="492" font-size="14" fill="#646C78">走到哪一步 · 用时</text>
+    <rect x="836" y="432" width="377" height="80" rx="12" fill="#fff" stroke="#E2E4E8"/>
+    <text x="856" y="464" font-size="19" font-weight="700">运行记录</text>
+    <text x="856" y="492" font-size="14" fill="#646C78">每步回执 · 关键帧 · 失败原因</text>
+    <g stroke="#9AA1AC" stroke-width="2">
+      <line x1="832" y1="472" x2="806" y2="472" marker-end="url(#c-m)"/>
+      <line x1="636" y1="472" x2="607" y2="472" marker-end="url(#c-m)"/>
+      <line x1="920" y1="324" x2="920" y2="426" stroke-dasharray="5,4" marker-end="url(#c-m)"/>
+    </g>
+    <text x="930" y="372" font-size="13" fill="#646C78">回执</text>
+    <!-- fast path up -->
+    <line x1="502" y1="432" x2="502" y2="328" stroke="#0C9A6A" stroke-width="4" marker-end="url(#c-g)"/>
+    <text x="490" y="360" font-size="15" font-weight="700" fill="#0C9A6A" text-anchor="end">快路径：调用冻结程序，秒过</text>
+    <!-- legend -->
+    <g font-size="13" fill="#646C78">
+      <line x1="24" y1="552" x2="56" y2="552" stroke="#0C9A6A" stroke-width="4"/><text x="64" y="557">快路径（经验复用，0 次大模型）</text>
+      <line x1="300" y1="552" x2="332" y2="552" stroke="#DE7414" stroke-width="2" stroke-dasharray="5,4"/><text x="340" y="557">慢路径（大模型，仅新场景）</text>
+      <rect x="560" y="543" width="18" height="18" rx="4" fill="#0B0F17"/><text x="586" y="557">安全内核：所有动作的唯一出口</text>
+      <line x1="820" y1="552" x2="852" y2="552" stroke="#9AA1AC" stroke-width="2" stroke-dasharray="5,4"/><text x="860" y="557">记录与反馈</text>
+    </g>
+  </svg>
+  <div class="foot"><span>具身智能 × 传统自动化 · 融合落地框架</span><span class="pg"></span></div>
+</section>
+
+<!-- 4 场景 -->
+<section class="slide">
+  <div class="kicker"><b>04</b>场景示例</div>
+  <h2>上下料抓取分拣：九宫格物料架清空</h2>
+  <p class="lede">F1 逐格把泡沫纸夹出来；一格抓干净，就移到放置区放下，再回来处理剩下的格子，直到 9 格全部清空。</p>
+  <div class="split">
+    <div>
+      <svg viewBox="0 0 860 430" width="860" height="430" role="img" aria-label="九宫格上下料场景">
+        <defs>
+          <marker id="s-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#2457F5"/></marker>
+          <marker id="s-m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#9AA1AC"/></marker>
+          <g id="foam">
+            <rect x="20" y="52" width="46" height="38" rx="14" fill="#E3E9F4" stroke="#9AA9C4" stroke-width="1.5"/>
+            <rect x="50" y="40" width="48" height="42" rx="16" fill="#EDF1F8" stroke="#9AA9C4" stroke-width="1.5"/>
+            <rect x="36" y="72" width="54" height="34" rx="14" fill="#E3E9F4" stroke="#9AA9C4" stroke-width="1.5"/>
+          </g>
+          <g id="done">
+            <rect x="2" y="2" width="116" height="116" fill="#F2FAF6"/>
+            <path d="M46,62 L57,73 L76,50" fill="none" stroke="#0C9A6A" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+        </defs>
+        <rect x="0" y="0" width="860" height="430" rx="16" fill="#fff" stroke="#E2E4E8"/>
+        <!-- shelf -->
+        <g transform="translate(30,30)">
+          <use href="#done" x="0" y="0"/><use href="#done" x="120" y="0"/><use href="#done" x="240" y="0"/>
+          <use href="#done" x="0" y="120"/><use href="#done" x="120" y="120"/>
+          <use href="#foam" x="0" y="240"/><use href="#foam" x="120" y="240"/><use href="#foam" x="240" y="240"/>
+          <rect x="276" y="168" width="48" height="40" rx="15" fill="#EDF1F8" stroke="#9AA9C4" stroke-width="1.5"/>
+          <rect x="240" y="120" width="120" height="120" fill="none" stroke="#2457F5" stroke-width="3"/>
+          <rect x="0" y="0" width="360" height="360" fill="none" stroke="#0B0F17" stroke-width="3"/>
+          <g stroke="#0B0F17" stroke-width="1.5"><line x1="120" y1="0" x2="120" y2="360"/><line x1="240" y1="0" x2="240" y2="360"/><line x1="0" y1="120" x2="360" y2="120"/><line x1="0" y1="240" x2="360" y2="240"/></g>
+          <g font-size="13" fill="#9AA1AC" font-variant-numeric="tabular-nums">
+            <text x="8" y="18">1</text><text x="128" y="18">2</text><text x="248" y="18">3</text>
+            <text x="8" y="138">4</text><text x="128" y="138">5</text><text x="248" y="138" fill="#2457F5" font-weight="700">6</text>
+            <text x="8" y="258">7</text><text x="128" y="258">8</text><text x="248" y="258">9</text>
+          </g>
+        </g>
+        <text x="30" y="414" font-size="14" fill="#646C78">九宫格物料架：1–5 格已清空，第 6 格进行中</text>
+        <!-- robot (F1, side view facing shelf) -->
+        <g>
+          <rect x="440" y="300" width="150" height="38" rx="8" fill="#0B0F17"/>
+          <circle cx="466" cy="344" r="11" fill="#fff" stroke="#0B0F17" stroke-width="3"/><circle cx="564" cy="344" r="11" fill="#fff" stroke="#0B0F17" stroke-width="3"/>
+          <rect x="535" y="196" width="20" height="106" fill="#2A303B"/>
+          <rect x="525" y="164" width="40" height="28" rx="6" fill="#0B0F17"/><circle cx="531" cy="178" r="4" fill="#2457F5"/>
+          <path d="M535,218 L470,238 L402,208" fill="none" stroke="#0B0F17" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+          <g stroke="#2457F5" stroke-width="4" stroke-linecap="round"><line x1="402" y1="208" x2="388" y2="198"/><line x1="402" y1="208" x2="388" y2="218"/></g>
+          <text x="440" y="138" font-size="14" font-weight="700" fill="#2457F5">① 逐格夹出泡沫纸</text>
+          <text x="515" y="380" font-size="14" font-weight="700" text-anchor="middle" fill="#0B0F17">F1</text>
+        </g>
+        <!-- drop zone -->
+        <rect x="672" y="200" width="160" height="140" rx="12" fill="#FAFBFC" stroke="#2457F5" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="752" y="188" font-size="15" font-weight="700" text-anchor="middle">放置区</text>
+        <use href="#foam" x="692" y="226"/>
+        <rect x="760" y="290" width="44" height="32" rx="13" fill="#EDF1F8" stroke="#9AA9C4" stroke-width="1.5"/>
+        <!-- moves -->
+        <path d="M590,156 L590,96 L760,96 L760,176" fill="none" stroke="#2457F5" stroke-width="2.5" marker-end="url(#s-a)"/>
+        <text x="600" y="84" font-size="14" font-weight="700" fill="#2457F5">② 该格抓干净，移到放置区放下</text>
+        <path d="M672,372 L610,372" fill="none" stroke="#9AA1AC" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#s-m)"/>
+        <text x="836" y="377" font-size="14" font-weight="700" fill="#646C78" text-anchor="end">③ 返回，处理下一格</text>
+        <text x="836" y="414" font-size="14" fill="#646C78" text-anchor="end">直到 9 格全部清空</text>
+      </svg>
+      <div class="steps">
+        <div><b><i>1</i>定位</b><span>分割 + 跟踪，找出格内每一团泡沫纸</span></div>
+        <div><b><i>2</i>夹取</b><span>夹爪接触判断是否夹住；格内还有就继续</span></div>
+        <div><b><i>3</i>转运</b><span>复查格子已空，底盘移到放置区放下</span></div>
+        <div><b><i>4</i>循环</b><span>回到下一格，9 格清空后结束</span></div>
+      </div>
+      <div class="callout"><span><span class="o">第 1 格</span>：新场景，大模型参与规划，验证后冻结为程序</span><span class="arr">→</span><span><span class="g">第 2–9 格</span>：同类场景，直接调用冻结程序</span></div>
+    </div>
+    <div class="cmp">
+      <h3>本体对比：F1 与 AgiBot G2</h3>
+      <div class="ph">
+        <div><strong>替换插图</strong><span>F1 轮式机器人（自研）</span></div>
+        <div><strong>替换插图</strong><span>AgiBot G2</span></div>
+      </div>
+      <table>
+        <tr><th>维度</th><th>F1（自研）</th><th>AgiBot G2</th></tr>
+        <tr><td>本体形态</td><td class="f1">轮式移动底盘 + 双臂</td><td>轮式底盘 + 人形上半身</td></tr>
+        <tr><td>移动方式</td><td class="f1">轮式，适合平整的车间地面</td><td>轮式</td></tr>
+        <tr><td>感知配置</td><td class="f1">头部相机 + 双腕相机；夹爪读数判抓</td><td><span class="tbd">待补</span></td></tr>
+        <tr><td>适用场景</td><td class="f1">工位间上下料、抓取分拣</td><td>工业与商业服务等多场景（按官方定位，待核实）</td></tr>
+        <tr><td>软件框架</td><td class="f1">自研 Harness：程序优先、安全内核、经验复用</td><td>厂商自有平台 <span class="tbd">待补</span></td></tr>
+        <tr><td>负载 / 续航</td><td class="f1"><span class="tbd">待补</span></td><td><span class="tbd">待补</span></td></tr>
+      </table>
+      <div class="note">AgiBot G2 一栏是依据公开资料的定性描述；没有核实的参数一律标“待补”，不做数字比较。</div>
+    </div>
+  </div>
+  <div class="foot"><span>具身智能 × 传统自动化 · 融合落地框架</span><span class="pg"></span></div>
+</section>
+
+</div></div>
+<div class="hint">← → 翻页 · 点击左右半屏 · Ctrl/⌘+P 打印为 PDF</div>
+<script>
+(function(){
+  var deck=document.getElementById('deck');
+  var slides=[].slice.call(deck.querySelectorAll('.slide'));
+  var n=slides.length,i=0;
+  slides.forEach(function(s,k){
+    var pg=s.querySelector('.pg');
+    if(pg)pg.textContent=String(k+1).padStart(2,'0')+' / '+String(n).padStart(2,'0');
+    var bar=document.createElement('div');bar.className='progress';bar.style.width=((k+1)/n*100)+'%';
+    if(k>0)s.appendChild(bar);
+  });
+  function fit(){
+    var sc=Math.min(window.innerWidth/1600,window.innerHeight/900);
+    deck.style.transform='translate(-50%,-50%) scale('+sc+')';
+  }
+  function show(k){
+    i=Math.max(0,Math.min(n-1,k));
+    slides.forEach(function(s,j){s.classList.toggle('active',j===i)});
+    if(location.hash!=='#'+(i+1))history.replaceState(null,'','#'+(i+1));
+  }
+  document.addEventListener('keydown',function(e){
+    if(['ArrowRight','PageDown',' ','ArrowDown'].indexOf(e.key)>=0){e.preventDefault();show(i+1)}
+    else if(['ArrowLeft','PageUp','ArrowUp'].indexOf(e.key)>=0){e.preventDefault();show(i-1)}
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(n-1);
+  });
+  document.addEventListener('click',function(e){
+    if(e.target.closest('a'))return;
+    show(e.clientX>window.innerWidth/3?i+1:i-1);
+  });
+  window.addEventListener('resize',fit);
+  window.addEventListener('hashchange',function(){var h=parseInt(location.hash.slice(1),10);if(h)show(h-1)});
+  fit();
+  var h=parseInt(location.hash.slice(1),10);show(h?h-1:0);
+})();
+</script>
+</body>
+</html>
