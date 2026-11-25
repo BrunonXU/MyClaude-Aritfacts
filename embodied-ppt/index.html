@@ -5,38 +5,39 @@
   <meta name="viewport" content="width=1600" />
   <title>具身智能 × 传统自动化：融合落地框架</title>
   <!--
-    插图替换说明（直接覆盖 assets/ 下同名文件即可生效）：
-    - assets/arm.webp        ：第 2 页 · 早期固定位置机械臂
-    - assets/mobile.webp     ：第 2 页 · 轮式双臂机器人 / 第 5 页右侧 F1 本体图
-    - assets/biped.webp      ：第 2 页 · 长远双足人形机器人
-    - assets/f1-factory.jpg  ：第 5 页左侧 · F1 工厂现场实拍图
-    - assets/f1-sim.jpg      ：第 5 页左侧 · 3D 仿真工位布局图
+    本地静态资源清单（直接覆盖 assets/ 下同名文件即可替换）：
+    - assets/f1-urdf.webp         ：自研 F1 真实 URDF 三维渲染图（源自 F1-4242 f1_wheel_0602_new.urdf）
+    - assets/arm.webp             ：第 2 页 · 固定位置机械臂
+    - assets/biped.webp           ：第 2 页 · 双足人形机器人
+    - assets/arch-perception.webp ：架构页 · F1 头部相机 + SAM2 分割实景
+    - assets/arch-planning.webp   ：架构页 · F1 运动学骨架与避障轨迹回放
+    - assets/arch-console.webp    ：架构页 · F1-infra 4242 运行时间线与回执界面
+    - assets/f1-factory.jpg       ：第 5 页 · F1 工厂现场实拍图
+    - assets/f1-sim.jpg           ：第 5 页 · 九宫格工位 3D 仿真图
   -->
   <style>
     /* ==========================================================================
        1. DESIGN TOKENS — CLEAN LIGHT EXECUTIVE PPT
-       Blue = 具身智能 (Embodied) | Ochre = 传统自动化 (Traditional) | Safe = 安全内核
+       Blue = 具身智能 | Ochre = 传统自动化 | Charcoal = 安全唯一出口
        ========================================================================== */
     :root {
       --bg: #FFFFFF;
-      --surface: #F7F8FA;
-      --surface-warm: #FBF7F2;
-      --surface-blue: #EFF5FB;
-      --ink: #161B22;
-      --ink-secondary: #4B5563;
-      --ink-muted: #7B8494;
-      --line: #E2E6EE;
-      --line-strong: #CBD2DF;
+      --surface: #F6F8FB;
+      --ink: #0F172A;
+      --ink-body: #475569;
+      --ink-muted: #7C8798;
+      --line: #E2E7F0;
+      --line-strong: #CBD5E1;
 
-      --embodied: #1F568B;
-      --embodied-soft: #EDF4FB;
-      --embodied-line: #B3CBE4;
+      --embodied: #1D568C;
+      --embodied-soft: #ECF4FC;
+      --embodied-line: #B3CEE8;
 
-      --trad: #9A6533;
-      --trad-soft: #FBF6F0;
-      --trad-line: #DFC6AC;
+      --trad: #9A632E;
+      --trad-soft: #FBF5EE;
+      --trad-line: #E2C6A8;
 
-      --safe: #182230;
+      --safe: #151E2C;
       --font-sans: "PingFang SC", "HarmonyOS Sans SC", "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       --scale: 1;
@@ -61,7 +62,7 @@
     }
 
     /* ==========================================================================
-       2. FULL-BLEED 16:9 PPT STAGE (1600 × 900, ZERO FLOATING CONTROLS)
+       2. FULL-BLEED 16:9 PPT STAGE (1600 × 900)
        ========================================================================== */
     .viewport {
       position: fixed;
@@ -86,7 +87,7 @@
       inset: 0;
       width: 1600px;
       height: 900px;
-      padding: 54px 84px 60px;
+      padding: 46px 76px 52px;
       background: var(--bg);
       display: flex;
       flex-direction: column;
@@ -103,14 +104,13 @@
       z-index: 2;
     }
 
-    /* Subtle top progress hairline */
     .progress-track {
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
       height: 3px;
-      background: #EEF1F6;
+      background: #EDF1F7;
       z-index: 20;
     }
 
@@ -122,59 +122,47 @@
     }
 
     /* ==========================================================================
-       3. SHARED SLIDE HEADER, LEGEND & FOOTER
+       3. SLIDE HEADER (TWO-ROW SO TITLE NEVER COLLIDES WITH LEGEND) & FOOTER
        ========================================================================== */
     .slide-head {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      padding-bottom: 18px;
+      padding-bottom: 14px;
       border-bottom: 1.5px solid var(--ink);
-      margin-bottom: 26px;
+      margin-bottom: 20px;
       flex-shrink: 0;
     }
 
+    .head-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
     .kicker {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       letter-spacing: 0.14em;
-      color: var(--embodied);
-      margin-bottom: 8px;
-    }
-
-    .slide-title {
-      font-size: 40px;
-      line-height: 1.2;
-      font-weight: 700;
-      letter-spacing: -0.015em;
-      color: var(--ink);
-    }
-
-    .slide-title em {
-      font-style: normal;
       color: var(--embodied);
     }
 
     .legend {
       display: flex;
       align-items: center;
-      gap: 20px;
-      font-size: 14px;
+      gap: 18px;
+      font-size: 13px;
       font-weight: 600;
-      color: var(--ink-secondary);
-      padding-bottom: 4px;
-      flex-shrink: 0;
+      color: var(--ink-body);
     }
 
     .legend-item {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
     }
 
     .swatch {
-      width: 12px;
-      height: 12px;
+      width: 11px;
+      height: 11px;
       border-radius: 2px;
       display: inline-block;
     }
@@ -183,54 +171,143 @@
     .swatch-trad { background: var(--trad); }
     .swatch-safe { background: var(--safe); }
 
+    .slide-title {
+      font-size: 38px;
+      line-height: 1.18;
+      font-weight: 800;
+      letter-spacing: -0.018em;
+      color: var(--ink);
+    }
+
+    .slide-title em {
+      font-style: normal;
+      color: var(--embodied);
+    }
+
     .slide-foot {
       position: absolute;
-      left: 84px;
-      right: 84px;
-      bottom: 22px;
+      left: 76px;
+      right: 76px;
+      bottom: 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 13.5px;
+      font-size: 13px;
       color: var(--ink-muted);
       pointer-events: none;
     }
 
     .page-no {
       font-family: var(--font-mono);
-      font-weight: 600;
-      font-size: 14px;
+      font-weight: 700;
+      font-size: 13.5px;
       letter-spacing: 0.06em;
-      color: var(--ink-secondary);
+      color: var(--ink-body);
       font-variant-numeric: tabular-nums;
     }
 
     /* ==========================================================================
-       4. SLIDE 1: COVER
+       4. PROVENANCE PILLS (技术来源小标) — STRONG CONTRAST & CLEAR VENDOR TAG
+       ========================================================================== */
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .src-pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 4px;
+      overflow: hidden;
+      font-size: 11.5px;
+      line-height: 1;
+      border: 1px solid var(--embodied-line);
+      background: #FFFFFF;
+    }
+
+    .src-pill b {
+      padding: 3.5px 6px;
+      background: var(--embodied);
+      color: #FFFFFF;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .src-pill span {
+      padding: 3.5px 7px;
+      color: var(--ink);
+      font-weight: 700;
+      background: var(--embodied-soft);
+    }
+
+    .src-pill.trad {
+      border-color: var(--trad-line);
+    }
+
+    .src-pill.trad b {
+      background: var(--trad);
+    }
+
+    .src-pill.trad span {
+      background: var(--trad-soft);
+    }
+
+    .src-pill.inhouse {
+      border-color: #334155;
+    }
+
+    .src-pill.inhouse b {
+      background: #0F172A;
+      color: #F8FAFC;
+    }
+
+    .src-pill.inhouse span {
+      background: #F1F5F9;
+      color: #0F172A;
+    }
+
+    .src-pill.on-dark {
+      border-color: #475569;
+      background: #233044;
+    }
+
+    .src-pill.on-dark b {
+      background: #38BDF8;
+      color: #0F172A;
+    }
+
+    .src-pill.on-dark span {
+      background: #233044;
+      color: #F8FAFC;
+    }
+
+    /* ==========================================================================
+       5. SLIDE 1: COVER
        ========================================================================== */
     .cover-body {
       flex: 1;
       display: grid;
-      grid-template-columns: 1.25fr 0.95fr;
+      grid-template-columns: 1.2fr 0.95fr;
       align-items: center;
-      gap: 48px;
+      gap: 44px;
     }
 
     .cover-kicker {
       display: inline-block;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: 0.16em;
       color: var(--embodied);
       padding-bottom: 10px;
       border-bottom: 2px solid var(--embodied);
-      margin-bottom: 28px;
+      margin-bottom: 26px;
     }
 
     .cover-title {
       font-size: 66px;
-      line-height: 1.16;
-      font-weight: 700;
+      line-height: 1.15;
+      font-weight: 800;
       letter-spacing: -0.02em;
       color: var(--ink);
     }
@@ -238,7 +315,7 @@
     .cover-title .cross {
       font-weight: 300;
       color: var(--ink-muted);
-      margin: 0 6px;
+      margin: 0 8px;
     }
 
     .cover-title .sub-accent {
@@ -248,10 +325,10 @@
     }
 
     .cover-lead {
-      margin-top: 26px;
-      font-size: 22px;
+      margin-top: 24px;
+      font-size: 21px;
       line-height: 1.55;
-      color: var(--ink-secondary);
+      color: var(--ink-body);
       max-width: 720px;
     }
 
@@ -259,9 +336,9 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 32px;
-      padding-top: 26px;
+      padding-top: 24px;
       border-top: 1.5px solid var(--line-strong);
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .agenda-card {
@@ -269,7 +346,7 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      padding: 8px 4px;
+      padding: 8px 6px;
       border-radius: 6px;
       transition: background-color 0.18s ease;
     }
@@ -280,7 +357,7 @@
 
     .agenda-num {
       font-family: var(--font-mono);
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       letter-spacing: 0.12em;
       color: var(--embodied);
@@ -289,11 +366,10 @@
 
     .agenda-name {
       font-size: 22px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--ink);
     }
 
-    /* Cover ring node active highlight */
     .cover-node rect {
       transition: stroke 0.35s ease, fill 0.35s ease, stroke-width 0.35s ease;
     }
@@ -301,23 +377,23 @@
     .cover-node.lit rect {
       fill: var(--embodied-soft);
       stroke: var(--embodied);
-      stroke-width: 2.4;
+      stroke-width: 2.5;
     }
 
     .cover-node.lit.trad-node rect {
       fill: var(--trad-soft);
       stroke: var(--trad);
-      stroke-width: 2.4;
+      stroke-width: 2.5;
     }
 
     /* ==========================================================================
-       5. SLIDE 2: UNIFIED TIMELINE — RATIO BARS + MORPHOLOGY EVOLUTION
+       6. SLIDE 2: TIMELINE + MORPHOLOGY EVOLUTION (WITH REAL F1 URDF)
        ========================================================================== */
     .timeline-axis {
       display: grid;
-      grid-template-columns: 1fr 48px 1fr 48px 1fr;
+      grid-template-columns: 1fr 44px 1fr 44px 1fr;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       flex-shrink: 0;
     }
 
@@ -325,7 +401,7 @@
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
       border-bottom: 2px solid var(--line-strong);
     }
 
@@ -335,27 +411,27 @@
 
     .era-title {
       font-size: 24px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--ink);
     }
 
     .era-mode {
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 600;
-      color: var(--ink-secondary);
+      color: var(--ink-body);
     }
 
     .axis-arrow {
       text-align: center;
       color: var(--ink-muted);
       font-size: 22px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .stage-grid {
       flex: 1;
       display: grid;
-      grid-template-columns: 1fr 48px 1fr 48px 1fr;
+      grid-template-columns: 1fr 44px 1fr 44px 1fr;
       align-items: stretch;
       min-height: 0;
     }
@@ -363,7 +439,7 @@
     .stage-col {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       min-height: 0;
     }
 
@@ -371,65 +447,50 @@
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 16px 20px;
+      padding: 14px 18px;
     }
 
     .ratio-numbers {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .ratio-main {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--ink-secondary);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink-body);
     }
 
     .ratio-main strong {
       font-family: var(--font-mono);
-      font-size: 42px;
-      font-weight: 700;
+      font-size: 40px;
+      font-weight: 800;
       color: var(--embodied);
       letter-spacing: -0.02em;
       margin-left: 6px;
     }
 
     .ratio-sub {
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 13.5px;
+      font-weight: 700;
       color: var(--trad);
     }
 
     .stacked-bar {
       width: 100%;
-      height: 28px;
+      height: 26px;
       border-radius: 5px;
       overflow: hidden;
       display: flex;
       background: #E9ECF2;
     }
 
-    .bar-trad {
+    .bar-trad, .bar-embodied {
       height: 100%;
-      background: var(--trad);
       color: #FFFFFF;
-      font-size: 13px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      white-space: nowrap;
-      transform-origin: left center;
-      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .bar-embodied {
-      height: 100%;
-      background: var(--embodied);
-      color: #FFFFFF;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -438,7 +499,9 @@
       transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    /* One-shot entrance animation when Slide 2 activates */
+    .bar-trad { background: var(--trad); }
+    .bar-embodied { background: var(--embodied); }
+
     .slide:not(.visited) .bar-trad,
     .slide:not(.visited) .bar-embodied {
       width: 0% !important;
@@ -449,7 +512,7 @@
       background: var(--bg);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 18px 22px 20px;
+      padding: 16px 20px 18px;
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -469,31 +532,30 @@
 
     .robot-card.featured {
       border: 2px solid var(--embodied);
-      background: linear-gradient(180deg, #FFFFFF 0%, #F6FAFE 100%);
+      background: linear-gradient(180deg, #FFFFFF 0%, #F5F9FE 100%);
     }
 
     .robot-card-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      min-height: 28px;
+      min-height: 26px;
     }
 
     .stage-tag {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       color: var(--ink-muted);
-      letter-spacing: 0.06em;
+      letter-spacing: 0.05em;
     }
 
     .f1-pill {
       background: var(--embodied);
       color: #FFFFFF;
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       padding: 3px 10px;
       border-radius: 4px;
-      letter-spacing: 0.04em;
     }
 
     .robot-visual {
@@ -502,30 +564,28 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 8px 0;
+      padding: 6px 0;
     }
 
     .robot-visual img {
       max-width: 100%;
-      max-height: 270px;
-      width: auto;
-      height: auto;
+      max-height: 280px;
       object-fit: contain;
       display: block;
     }
 
     .robot-name {
-      font-size: 24px;
-      font-weight: 700;
+      font-size: 25px;
+      font-weight: 800;
       color: var(--ink);
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     .robot-desc {
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.45;
-      color: var(--ink-secondary);
-      margin-top: 6px;
+      color: var(--ink-body);
+      margin-top: 4px;
     }
 
     .col-chevron {
@@ -536,96 +596,193 @@
     }
 
     /* ==========================================================================
-       6. SLIDE 3: MACRO CLOSED-LOOP DIAGRAM + TAKEAWAY STRIP
+       7. SLIDE 3: MACRO CLOSED-LOOP (HTML VISUAL CARDS + CLEAR TYPOGRAPHY)
        ========================================================================== */
-    .macro-stage {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 0;
-    }
-
-    .macro-svg-wrap {
+    .macro-canvas {
+      position: relative;
+      width: 1448px;
+      height: 516px;
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 10px;
-      padding: 18px 20px;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 0;
+      flex-shrink: 0;
     }
 
-    .macro-node .box {
-      transition: stroke-width 0.3s ease, filter 0.3s ease, fill 0.3s ease;
-    }
-
-    .macro-node.is-active .box {
-      stroke-width: 3.2;
-      filter: drop-shadow(0 8px 18px rgba(31, 86, 139, 0.16));
-    }
-
-    .macro-node.trad-box.is-active .box {
-      filter: drop-shadow(0 8px 18px rgba(154, 101, 51, 0.18));
+    .macro-svg-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
     }
 
     .macro-link {
+      opacity: 0.38;
       transition: opacity 0.3s ease, stroke-width 0.3s ease;
-      opacity: 0.42;
     }
 
     .macro-link.is-active {
       opacity: 1;
-      stroke-width: 3.2;
+      stroke-width: 3.4;
+    }
+
+    .rail-pill {
+      position: absolute;
+      z-index: 3;
+      padding: 5px 16px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .rail-pill.blue {
+      background: var(--embodied-soft);
+      border: 1px solid var(--embodied-line);
+      color: var(--embodied);
+    }
+
+    .rail-pill.trad {
+      background: var(--trad-soft);
+      border: 1px solid var(--trad-line);
+      color: var(--trad);
+    }
+
+    .m-card {
+      position: absolute;
+      top: 106px;
+      width: 248px;
+      height: 304px;
+      background: #FFFFFF;
+      border: 2px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 16px 16px 14px;
+      display: flex;
+      flex-direction: column;
+      z-index: 2;
+      transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+    }
+
+    .m-card.embodied-card { border-top: 5px solid var(--embodied); }
+    .m-card.trad-card { border-top: 5px solid var(--trad); }
+    .m-card.neutral-card { border-top: 5px solid #64748B; }
+
+    .m-card.is-active {
+      transform: translateY(-4px);
+      border-color: var(--embodied);
+      box-shadow: 0 12px 26px rgba(29, 86, 140, 0.14);
+    }
+
+    .m-card.trad-card.is-active {
+      border-color: var(--trad);
+      box-shadow: 0 12px 26px rgba(154, 99, 46, 0.16);
+    }
+
+    .m-step {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--ink-muted);
+      margin-bottom: 4px;
+    }
+
+    /* Big unmistakable title vs small clean body! */
+    .m-title {
+      font-size: 27px;
+      line-height: 1.18;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .m-thumb {
+      width: 100%;
+      height: 124px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #F1F5F9;
+      border: 1px solid var(--line);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .m-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .m-role {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--embodied);
+      margin-bottom: 3px;
+    }
+
+    .m-card.trad-card .m-role {
+      color: var(--trad);
+    }
+
+    .m-desc {
+      font-size: 13.5px;
+      line-height: 1.4;
+      font-weight: 400;
+      color: var(--ink-body);
     }
 
     .takeaway-strip {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-top: 20px;
-      flex-shrink: 0;
+      gap: 22px;
+      margin-top: 18px;
     }
 
     .takeaway-item {
       background: var(--bg);
       border: 1px solid var(--line);
-      border-top: 3px solid var(--embodied);
+      border-left: 4px solid var(--embodied);
       border-radius: 6px;
-      padding: 16px 22px;
+      padding: 14px 20px;
     }
 
-    .takeaway-item.trad-accent {
-      border-top-color: var(--trad);
-    }
-
-    .takeaway-item.safe-accent {
-      border-top-color: var(--safe);
-    }
+    .takeaway-item.safe-accent { border-left-color: var(--safe); }
+    .takeaway-item.trad-accent { border-left-color: var(--trad); }
 
     .takeaway-item h3 {
-      font-size: 20px;
-      font-weight: 700;
+      font-size: 21px;
+      font-weight: 800;
       color: var(--ink);
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .takeaway-item p {
-      font-size: 16px;
-      color: var(--ink-secondary);
+      font-size: 14.5px;
+      color: var(--ink-body);
     }
 
     /* ==========================================================================
-       7. SLIDE 4: 3-SWIMLANE ALGORITHM & COMPONENTS DIAGRAM
+       8. SLIDE 4: 3-SWIMLANE COMPONENTS — RICH VISUALS, PROVENANCE PILLS &
+          SHARP TYPOGRAPHIC HIERARCHY (24px Bold Title vs 13px Regular Body)
        ========================================================================== */
-    .swimlane-wrap {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 0;
+    .arch-board {
+      position: relative;
+      width: 1448px;
+      height: 616px;
+      flex-shrink: 0;
+    }
+
+    .arch-svg-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
     }
 
     @keyframes dashFast {
@@ -648,28 +805,240 @@
       animation: dashSlow 2.4s linear infinite;
     }
 
+    /* Swimlane bands */
+    .lane-band {
+      position: absolute;
+      left: 0;
+      width: 1448px;
+      border-radius: 8px;
+      display: flex;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .lane-slow {
+      top: 0;
+      height: 148px;
+      background: #F6FAFE;
+      border: 1px solid #D4E2F2;
+    }
+
+    .lane-fast {
+      top: 168px;
+      height: 280px;
+      background: #FFFFFF;
+      border: 2px solid var(--embodied);
+    }
+
+    .lane-exp {
+      top: 468px;
+      height: 148px;
+      background: #F7F9FC;
+      border: 1px solid #DCE2EC;
+    }
+
+    .lane-side {
+      width: 142px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .lane-slow .lane-side { background: #E7F0FA; }
+    .lane-fast .lane-side { background: var(--embodied); color: #FFFFFF; }
+    .lane-exp .lane-side { background: #EAEFF6; }
+
+    .lane-name {
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .lane-slow .lane-name { color: var(--embodied); }
+    .lane-fast .lane-name { color: #FFFFFF; }
+
+    .lane-caption {
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-top: 6px;
+      color: var(--ink-body);
+    }
+
+    .lane-fast .lane-caption { color: #D7E8FA; }
+
+    /* Component Cards inside Swimlanes */
+    .c-card {
+      position: absolute;
+      z-index: 3;
+      background: #FFFFFF;
+      border-radius: 8px;
+      border: 1.5px solid var(--line-strong);
+      padding: 11px 12px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .c-card.embodied-c { border-color: var(--embodied); border-top-width: 4px; }
+    .c-card.trad-c { border-color: var(--trad); border-top-width: 4px; }
+    .c-card.dashed-c { border: 1.8px dashed var(--embodied); background: #FFFFFF; }
+    .c-card.safe-c {
+      background: var(--safe);
+      border: 2px solid var(--safe);
+      color: #FFFFFF;
+    }
+
+    /* HUGE visual jump between Card Title (23px ExtraBold) and Body (12.5px Regular)! */
+    .c-title {
+      font-size: 23px;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .c-card.safe-c .c-title {
+      color: #FFFFFF;
+    }
+
+    .c-vis {
+      width: 100%;
+      height: 82px;
+      border-radius: 5px;
+      overflow: hidden;
+      background: #F1F5F9;
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 6px 0;
+    }
+
+    .c-card.safe-c .c-vis {
+      background: #222F42;
+      border-color: #364760;
+    }
+
+    .c-vis img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .c-note {
+      font-size: 12.5px;
+      line-height: 1.32;
+      font-weight: 400;
+      color: var(--ink-body);
+    }
+
+    .c-card.safe-c .c-note {
+      color: #CBD5E1;
+    }
+
+    /* Horizontal Cards in Lane 1 & Lane 3 (Image/Icon Left + Title/Badges/Note Right) */
+    .h-card {
+      position: absolute;
+      z-index: 3;
+      background: #FFFFFF;
+      border-radius: 8px;
+      border: 1.5px solid var(--line-strong);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .h-card.dashed-c { border: 1.8px dashed var(--embodied); }
+    .h-card.embodied-c { border: 1.8px solid var(--embodied); }
+
+    .h-thumb {
+      width: 120px;
+      height: 84px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #F1F5F9;
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .h-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .h-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* Tech Direction Summary Bar below Slide 4 Board */
+    .tech-direction-bar {
+      margin-top: 12px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px 18px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      font-size: 13px;
+    }
+
+    .td-col {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .td-col strong {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .td-col span {
+      color: var(--ink-body);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     /* ==========================================================================
-       8. SLIDE 5: 9-GRID WORKCELL SCENE & SELF-DEVELOPED F1 SPEC
+       9. SLIDE 5: 9-GRID WORKCELL SCENE & REAL F1 URDF SHOWCASE
        ========================================================================== */
     .case-layout {
       flex: 1;
       display: grid;
       grid-template-columns: 1.26fr 1fr;
-      gap: 28px;
+      gap: 26px;
       min-height: 0;
     }
 
     .case-left {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       min-height: 0;
     }
 
     .scene-photos {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 14px;
       height: 238px;
       flex-shrink: 0;
     }
@@ -693,8 +1062,8 @@
 
     .photo-cap {
       padding: 8px 14px;
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 13.5px;
+      font-weight: 700;
       color: var(--ink);
       background: var(--bg);
       border-top: 1px solid var(--line);
@@ -705,24 +1074,17 @@
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 18px 22px;
+      padding: 16px 20px;
       display: grid;
-      grid-template-columns: 186px 1fr;
-      gap: 24px;
+      grid-template-columns: 184px 1fr;
+      gap: 22px;
       align-items: center;
       min-height: 0;
     }
 
-    .rack-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
     .rack-grid {
-      width: 174px;
-      height: 174px;
+      width: 172px;
+      height: 172px;
       background: #232933;
       border: 2px solid #161B22;
       border-radius: 6px;
@@ -753,32 +1115,13 @@
       font-weight: 700;
     }
 
-    .rack-cell.stocked {
-      background: #353D4B;
-      border: 1px solid #485264;
-    }
-
+    .rack-cell.stocked { background: #353D4B; border: 1px solid #485264; }
     .rack-cell.stocked .idx { color: #B8C0CC; }
-
-    .rack-cell.cleared {
-      background: #ECEFF4;
-      border: 1px solid #D5DCE6;
-    }
-
+    .rack-cell.cleared { background: #ECEFF4; border: 1px solid #D5DCE6; }
     .rack-cell.cleared .idx { color: #8A94A4; }
-
-    .rack-cell.active-slow {
-      background: var(--trad-soft);
-      border: 2px solid var(--trad);
-    }
-
+    .rack-cell.active-slow { background: var(--trad-soft); border: 2px solid var(--trad); }
     .rack-cell.active-slow .idx { color: var(--trad); }
-
-    .rack-cell.active-fast {
-      background: var(--embodied-soft);
-      border: 2px solid var(--embodied);
-    }
-
+    .rack-cell.active-fast { background: var(--embodied-soft); border: 2px solid var(--embodied); }
     .rack-cell.active-fast .idx { color: var(--embodied); }
 
     .foam-sheets {
@@ -821,13 +1164,14 @@
     }
 
     .loop-head strong {
-      font-size: 17px;
+      font-size: 18px;
+      font-weight: 800;
       color: var(--ink);
     }
 
     .loop-status {
       font-family: var(--font-mono);
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       color: var(--embodied);
     }
@@ -847,31 +1191,32 @@
 
     .loop-step-card b {
       display: block;
-      font-size: 15px;
+      font-size: 16px;
+      font-weight: 800;
       color: var(--ink);
       margin-bottom: 2px;
     }
 
     .loop-step-card b span {
       color: var(--embodied);
-      margin-right: 4px;
+      margin-right: 5px;
     }
 
     .loop-step-card p {
-      font-size: 13.5px;
-      color: var(--ink-secondary);
+      font-size: 13px;
+      color: var(--ink-body);
     }
 
     .path-bridge {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 14px;
       flex-shrink: 0;
     }
 
     .bridge-card {
       border-radius: 8px;
-      padding: 14px 18px;
+      padding: 13px 18px;
       border: 1px solid var(--line);
     }
 
@@ -887,7 +1232,8 @@
 
     .bridge-card strong {
       display: block;
-      font-size: 17px;
+      font-size: 18px;
+      font-weight: 800;
       margin-bottom: 3px;
     }
 
@@ -895,26 +1241,25 @@
     .bridge-card.fast strong { color: var(--embodied); }
 
     .bridge-card span {
-      font-size: 15px;
-      color: var(--ink-secondary);
+      font-size: 14px;
+      color: var(--ink-body);
     }
 
-    /* Right Column: Self-Developed F1 Profile */
     .case-right {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       min-height: 0;
     }
 
     .f1-hero-card {
-      border: 1.5px solid var(--embodied);
+      border: 2px solid var(--embodied);
       border-radius: 8px;
-      background: linear-gradient(180deg, #FFFFFF 0%, #F5F9FD 100%);
+      background: #FFFFFF;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      height: 292px;
+      height: 304px;
       flex-shrink: 0;
     }
 
@@ -924,7 +1269,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 12px 24px;
+      padding: 8px 20px;
+      background: #FFFFFF;
     }
 
     .f1-hero-visual img {
@@ -935,7 +1281,7 @@
     }
 
     .f1-hero-bar {
-      padding: 11px 20px;
+      padding: 10px 18px;
       background: var(--embodied);
       color: #FFFFFF;
       display: flex;
@@ -945,11 +1291,11 @@
 
     .f1-hero-bar strong {
       font-size: 18px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .f1-hero-bar span {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       opacity: 0.92;
     }
@@ -968,7 +1314,7 @@
       width: 100%;
       height: 100%;
       border-collapse: collapse;
-      font-size: 15.5px;
+      font-size: 15px;
     }
 
     .spec-table tr + tr {
@@ -976,28 +1322,28 @@
     }
 
     .spec-table th {
-      width: 136px;
-      padding: 11px 18px;
+      width: 132px;
+      padding: 10px 16px;
       text-align: left;
-      font-weight: 600;
-      color: var(--ink-secondary);
+      font-weight: 700;
+      color: var(--ink-body);
       background: var(--surface);
       white-space: nowrap;
     }
 
     .spec-table td {
-      padding: 11px 20px;
+      padding: 10px 18px;
       color: var(--ink);
       font-weight: 500;
     }
 
     .spec-table td.hl {
       color: var(--embodied);
-      font-weight: 700;
+      font-weight: 800;
     }
 
     /* ==========================================================================
-       9. EXACT 16:9 LANDSCAPE PDF PRINT EXPORT (Ctrl/⌘ + P)
+       10. EXACT 16:9 LANDSCAPE PDF PRINT EXPORT (Ctrl/⌘ + P)
        ========================================================================== */
     @page {
       size: 1600px 900px;
@@ -1019,22 +1365,12 @@
         background: #FFFFFF !important;
       }
 
-      .progress-track,
-      .no-print {
+      .progress-track, .no-print {
         display: none !important;
       }
 
-      .viewport {
-        position: static !important;
-        overflow: visible !important;
-      }
-
-      .deck {
-        position: static !important;
-        transform: none !important;
-        width: 1600px !important;
-        height: auto !important;
-      }
+      .viewport { position: static !important; overflow: visible !important; }
+      .deck { position: static !important; transform: none !important; width: 1600px !important; height: auto !important; }
 
       .slide {
         position: relative !important;
@@ -1052,17 +1388,12 @@
         break-after: auto !important;
       }
 
-      .slide:not(.visited) .robot-card {
-        opacity: 1 !important;
-        transform: none !important;
-      }
-
+      .slide:not(.visited) .robot-card { opacity: 1 !important; transform: none !important; }
       .bar-trad.w80 { width: 80% !important; }
       .bar-embodied.w20 { width: 20% !important; }
       .bar-trad.w20 { width: 20% !important; }
       .bar-embodied.w80 { width: 80% !important; }
       .bar-embodied.w100 { width: 100% !important; }
-
       .macro-link { opacity: 0.85 !important; }
     }
   </style>
@@ -1087,55 +1418,42 @@
             </p>
           </div>
 
-          <!-- Dual-tone Fusion Closed-Loop Ring -->
           <div style="display:flex;align-items:center;justify-content:center;">
             <svg viewBox="0 0 460 420" width="440" height="402" aria-label="具身与传统融合闭环">
               <defs>
                 <marker id="cvBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
-                  <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#1F568B" />
+                  <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#1D568C" />
                 </marker>
                 <marker id="cvTrad" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
-                  <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#9A6533" />
+                  <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#9A632E" />
                 </marker>
               </defs>
 
-              <!-- Subtle outer guide -->
               <circle cx="230" cy="210" r="136" fill="none" stroke="#E6EAF0" stroke-width="1.5" />
+              <path d="M 278 83 A 136 136 0 0 1 357 162" fill="none" stroke="#1D568C" stroke-width="2.5" marker-end="url(#cvBlue)" />
+              <path d="M 357 258 A 136 136 0 0 1 278 337" fill="none" stroke="#9A632E" stroke-width="2.5" marker-end="url(#cvTrad)" />
+              <path d="M 182 337 A 136 136 0 0 1 103 258" fill="none" stroke="#1D568C" stroke-width="2.5" marker-end="url(#cvBlue)" />
+              <path d="M 103 162 A 136 136 0 0 1 182 83" fill="none" stroke="#1D568C" stroke-width="2.5" marker-end="url(#cvBlue)" />
 
-              <!-- 4 Directional Arcs -->
-              <!-- Top -> Right (Embodied Blue) -->
-              <path d="M 278 83 A 136 136 0 0 1 357 162" fill="none" stroke="#1F568B" stroke-width="2.4" marker-end="url(#cvBlue)" />
-              <!-- Right -> Bottom (Trad Ochre) -->
-              <path d="M 357 258 A 136 136 0 0 1 278 337" fill="none" stroke="#9A6533" stroke-width="2.4" marker-end="url(#cvTrad)" />
-              <!-- Bottom -> Left (Embodied Blue) -->
-              <path d="M 182 337 A 136 136 0 0 1 103 258" fill="none" stroke="#1F568B" stroke-width="2.4" marker-end="url(#cvBlue)" />
-              <!-- Left -> Top (Embodied Blue) -->
-              <path d="M 103 162 A 136 136 0 0 1 182 83" fill="none" stroke="#1F568B" stroke-width="2.4" marker-end="url(#cvBlue)" />
+              <circle cx="230" cy="210" r="64" fill="#F6F8FB" stroke="#E2E7F0" stroke-width="1.2" />
+              <text x="230" y="204" text-anchor="middle" font-size="22" font-weight="800" fill="#0F172A">融合闭环</text>
+              <text x="230" y="230" text-anchor="middle" font-size="15" font-weight="700" fill="#1D568C">越用越快</text>
 
-              <!-- Center Core -->
-              <circle cx="230" cy="210" r="64" fill="#F7F8FA" stroke="#E2E6EE" stroke-width="1.2" />
-              <text x="230" y="204" text-anchor="middle" font-size="22" font-weight="700" fill="#161B22">融合闭环</text>
-              <text x="230" y="230" text-anchor="middle" font-size="15" font-weight="700" fill="#1F568B">越用越快</text>
-
-              <!-- 4 Cardinal Nodes -->
               <g class="cover-node lit" data-cnode="0" transform="translate(172, 48)">
-                <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#B3CBE4" stroke-width="1.8" />
-                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#161B22">状态感知</text>
+                <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#B3CEE8" stroke-width="1.8" />
+                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">状态感知</text>
               </g>
-
               <g class="cover-node" data-cnode="1" transform="translate(314, 185)">
-                <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#B3CBE4" stroke-width="1.8" />
-                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#161B22">双路决策</text>
+                <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#B3CEE8" stroke-width="1.8" />
+                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">双路决策</text>
               </g>
-
               <g class="cover-node trad-node" data-cnode="2" transform="translate(172, 322)">
-                <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#DFC6AC" stroke-width="1.8" />
-                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#161B22">安全执行</text>
+                <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#E2C6A8" stroke-width="1.8" />
+                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">安全执行</text>
               </g>
-
               <g class="cover-node" data-cnode="3" transform="translate(30, 185)">
-                <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#B3CBE4" stroke-width="1.8" />
-                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#161B22">经验沉淀</text>
+                <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#B3CEE8" stroke-width="1.8" />
+                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">经验沉淀</text>
               </g>
             </svg>
           </div>
@@ -1164,21 +1482,20 @@
       </section>
 
       <!-- ====================================================================
-           SLIDE 2 (#2): 01 落地趋势与本体演进（同一页时间轴）
+           SLIDE 2 (#2): 01 落地趋势与本体演进（使用 F1 真实 URDF）
            ==================================================================== -->
       <section class="slide" data-index="1" aria-label="落地趋势与本体演进">
         <header class="slide-head">
-          <div>
+          <div class="head-top">
             <div class="kicker">01 · 宏观趋势与本体演进</div>
-            <h2 class="slide-title">从传统自动化为主，走向<em>跨工位与全面具身</em></h2>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch swatch-trad"></i>传统自动化</span>
+              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身智能</span>
+            </div>
           </div>
-          <div class="legend">
-            <span class="legend-item"><i class="swatch swatch-trad"></i>传统自动化</span>
-            <span class="legend-item"><i class="swatch swatch-embodied"></i>具身智能</span>
-          </div>
+          <h2 class="slide-title">从传统自动化为主，走向<em>跨工位与全面具身</em></h2>
         </header>
 
-        <!-- Horizontal Timeline Header -->
         <div class="timeline-axis">
           <div class="era-head">
             <span class="era-title">现在</span>
@@ -1196,9 +1513,7 @@
           </div>
         </div>
 
-        <!-- Aligned 3 Columns: Top Stacked Ratio Bar + Bottom Robot Morphology -->
         <div class="stage-grid">
-          <!-- Stage 1: Now -->
           <div class="stage-col">
             <div class="ratio-box">
               <div class="ratio-numbers">
@@ -1227,7 +1542,7 @@
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
           </div>
 
-          <!-- Stage 2: Transition / Wheeled (F1 Here) -->
+          <!-- Stage 2: REAL F1 URDF FROM F1-4242 -->
           <div class="stage-col">
             <div class="ratio-box" style="border-color:var(--embodied-line);background:var(--embodied-soft);">
               <div class="ratio-numbers">
@@ -1243,13 +1558,13 @@
             <article class="robot-card featured delay-2">
               <div class="robot-card-top">
                 <span class="stage-tag" style="color:var(--embodied);">第二代本体 · 跨工位移动</span>
-                <span class="f1-pill">自研 F1 在这里</span>
+                <span class="f1-pill">自研 F1 真实构型</span>
               </div>
               <div class="robot-visual">
-                <img src="assets/mobile.webp" alt="AGV加机械臂轮式机器人" />
+                <img src="assets/f1-urdf.webp" alt="自研 F1 真实 URDF 轮式双臂构型" />
               </div>
-              <h3 class="robot-name">AGV + 机械臂（轮式）</h3>
-              <p class="robot-desc">跨工位自主往返，一台覆盖多岗位上下料与分拣</p>
+              <h3 class="robot-name">AGV + 双臂（轮式）</h3>
+              <p class="robot-desc">Z 型折叠升降躯干 + 轮式底盘，一台覆盖多岗位</p>
             </article>
           </div>
 
@@ -1257,7 +1572,6 @@
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
           </div>
 
-          <!-- Stage 3: Long-term -->
           <div class="stage-col">
             <div class="ratio-box">
               <div class="ratio-numbers">
@@ -1283,364 +1597,450 @@
         </div>
 
         <footer class="slide-foot">
-          <span>占比为产线任务演进判断；各阶段底层均复用传统伺服控制与安全标准</span>
+          <span>轮式本体图为 F1-4242 真实 URDF（f1_wheel）三维渲染；占比为技术路线判断</span>
           <span class="page-no">02 / 05</span>
         </footer>
       </section>
 
       <!-- ====================================================================
-           SLIDE 3 (#3): 02 框架图 A · 宏观闭环
+           SLIDE 3 (#3): 02 框架图 A · 宏观闭环（图文结合 + 大字号层级）
            ==================================================================== -->
       <section class="slide" data-index="2" aria-label="框架图 A 宏观闭环">
         <header class="slide-head">
-          <div>
+          <div class="head-top">
             <div class="kicker">02 · 总体框架 · 宏观闭环</div>
-            <h2 class="slide-title">具身负责<em>把事做成</em>，传统负责<em>不出事故</em></h2>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身模块（适应与进化）</span>
+              <span class="legend-item"><i class="swatch swatch-trad"></i>传统模块（确定性与安全）</span>
+            </div>
           </div>
-          <div class="legend">
-            <span class="legend-item"><i class="swatch swatch-embodied"></i>具身模块（适应与进化）</span>
-            <span class="legend-item"><i class="swatch swatch-trad"></i>传统模块（确定性与安全）</span>
-          </div>
+          <h2 class="slide-title">具身负责<em>把事做成</em>，传统负责<em>不出事故</em></h2>
         </header>
 
-        <div class="macro-stage">
-          <div class="macro-svg-wrap">
-            <svg viewBox="0 0 1390 420" width="100%" height="100%" aria-label="Harness 宏观五步闭环">
-              <defs>
-                <marker id="mBlue" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
-                  <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#1F568B" />
-                </marker>
-                <marker id="mTrad" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
-                  <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#9A6533" />
-                </marker>
-                <marker id="mSlate" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
-                  <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#4B5563" />
-                </marker>
-              </defs>
-
-              <!-- Upper Return Rail: 05 经验沉淀 -> 03 决策编排 -->
-              <path id="mlink-4" class="macro-link" d="M 1265 130 L 1265 44 L 695 44 L 695 124"
-                    fill="none" stroke="#1F568B" stroke-width="2.2" marker-end="url(#mBlue)" />
-              <rect x="795" y="24" width="370" height="36" rx="18" fill="#EDF4FB" stroke="#B3CBE4" stroke-width="1.2" />
-              <text x="980" y="47" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1F568B">
-                经验固化为冻结程序 · 同类场景 0 次大模型
-              </text>
-
-              <!-- Main Horizontal Forward Links -->
-              <line id="mlink-0" class="macro-link is-active" x1="238" y1="215" x2="290" y2="215" stroke="#4B5563" stroke-width="2.2" marker-end="url(#mSlate)" />
-              <line id="mlink-1" class="macro-link" x1="523" y1="215" x2="575" y2="215" stroke="#1F568B" stroke-width="2.2" marker-end="url(#mBlue)" />
-              <line id="mlink-2" class="macro-link" x1="808" y1="215" x2="860" y2="215" stroke="#9A6533" stroke-width="2.2" marker-end="url(#mTrad)" />
-              <line id="mlink-3" class="macro-link" x1="1093" y1="215" x2="1145" y2="215" stroke="#1F568B" stroke-width="2.2" marker-end="url(#mBlue)" />
-
-              <!-- Lower Physical Feedback Rail: 04 安全执行 -> 02 状态感知 -->
-              <path id="mlink-fb" class="macro-link" d="M 980 300 L 980 376 L 410 376 L 410 306"
-                    fill="none" stroke="#9A6533" stroke-width="2.2" marker-end="url(#mTrad)" />
-              <rect x="495" y="358" width="400" height="36" rx="18" fill="#FBF6F0" stroke="#DFC6AC" stroke-width="1.2" />
-              <text x="695" y="381" text-anchor="middle" font-size="14.5" font-weight="700" fill="#9A6533">
-                实时物理闭环：动作后图像、关节与夹爪读数回流
-              </text>
-
-              <!-- Node 0: 任务输入 -->
-              <g class="macro-node is-active" data-mnode="0" transform="translate(10, 130)">
-                <rect class="box" width="228" height="170" rx="10" fill="#FFFFFF" stroke="#94A0B2" stroke-width="2" />
-                <rect width="228" height="8" rx="4" fill="#64748B" />
-                <text x="22" y="42" font-family="monospace" font-size="14" font-weight="700" fill="#64748B">STEP 01</text>
-                <text x="22" y="80" font-size="26" font-weight="700" fill="#161B22">任务输入</text>
-                <line x1="22" y1="102" x2="206" y2="102" stroke="#E6EAF0" />
-                <text x="22" y="130" font-size="15.5" font-weight="600" fill="#9A6533">传统产线调度接入</text>
-                <text x="22" y="152" font-size="14" fill="#5B6472">目标工位与完成判据</text>
-              </g>
-
-              <!-- Node 1: 状态感知 -->
-              <g class="macro-node" data-mnode="1" transform="translate(295, 130)">
-                <rect class="box" width="228" height="170" rx="10" fill="#FFFFFF" stroke="#1F568B" stroke-width="2" />
-                <rect width="228" height="8" rx="4" fill="#1F568B" />
-                <text x="22" y="42" font-family="monospace" font-size="14" font-weight="700" fill="#1F568B">STEP 02</text>
-                <text x="22" y="80" font-size="26" font-weight="700" fill="#161B22">状态感知</text>
-                <line x1="22" y1="102" x2="206" y2="102" stroke="#E6EAF0" />
-                <text x="22" y="130" font-size="15.5" font-weight="600" fill="#1F568B">具身多模态感知</text>
-                <text x="22" y="152" font-size="14" fill="#5B6472">视觉分割定位 + 夹持状态</text>
-              </g>
-
-              <!-- Node 2: 决策编排 -->
-              <g class="macro-node" data-mnode="2" transform="translate(580, 130)">
-                <rect class="box" width="228" height="170" rx="10" fill="#FFFFFF" stroke="#1F568B" stroke-width="2" />
-                <rect width="228" height="8" rx="4" fill="#1F568B" />
-                <text x="22" y="42" font-family="monospace" font-size="14" font-weight="700" fill="#1F568B">STEP 03</text>
-                <text x="22" y="80" font-size="26" font-weight="700" fill="#161B22">决策编排</text>
-                <line x1="22" y1="102" x2="206" y2="102" stroke="#E6EAF0" />
-                <text x="22" y="130" font-size="15.5" font-weight="600" fill="#1F568B">程序优先 + 大模型兜底</text>
-                <text x="22" y="152" font-size="14" fill="#5B6472">常规跑程序，异常才问模型</text>
-              </g>
-
-              <!-- Node 3: 安全执行 -->
-              <g class="macro-node trad-box" data-mnode="3" transform="translate(865, 130)">
-                <rect class="box" width="228" height="170" rx="10" fill="#FFFFFF" stroke="#9A6533" stroke-width="2" />
-                <rect width="228" height="8" rx="4" fill="#9A6533" />
-                <text x="22" y="42" font-family="monospace" font-size="14" font-weight="700" fill="#9A6533">STEP 04</text>
-                <text x="22" y="80" font-size="26" font-weight="700" fill="#161B22">安全执行</text>
-                <line x1="22" y1="102" x2="206" y2="102" stroke="#E6EAF0" />
-                <text x="22" y="130" font-size="15.5" font-weight="600" fill="#9A6533">传统规划控制 + 安全联锁</text>
-                <text x="22" y="152" font-size="14" fill="#5B6472">碰撞限位核验 · 平滑输出</text>
-              </g>
-
-              <!-- Node 4: 经验沉淀 -->
-              <g class="macro-node" data-mnode="4" transform="translate(1150, 130)">
-                <rect class="box" width="228" height="170" rx="10" fill="#FFFFFF" stroke="#1F568B" stroke-width="2" />
-                <rect width="228" height="8" rx="4" fill="#1F568B" />
-                <text x="22" y="42" font-family="monospace" font-size="14" font-weight="700" fill="#1F568B">STEP 05</text>
-                <text x="22" y="80" font-size="26" font-weight="700" fill="#161B22">经验沉淀</text>
-                <line x1="22" y1="102" x2="206" y2="102" stroke="#E6EAF0" />
-                <text x="22" y="130" font-size="15.5" font-weight="600" fill="#1F568B">具身评测与验证</text>
-                <text x="22" y="152" font-size="14" fill="#5B6472">记录回执 · 验证后入库</text>
-              </g>
-            </svg>
+        <div class="macro-canvas">
+          <!-- Upper & Lower Return Labels -->
+          <div class="rail-pill blue" style="top:22px;left:764px;">
+            经验复用：验证达标后固化为冻结程序，同类场景 0 次大模型
+          </div>
+          <div class="rail-pill trad" style="bottom:20px;left:508px;">
+            实时物理闭环：每次动作后图像、关节反馈与夹爪读数回到感知
           </div>
 
-          <div class="takeaway-strip">
-            <div class="takeaway-item">
-              <h3>大模型退居兜底</h3>
-              <p>见过的工序跑冻结程序，在线推理零延迟</p>
+          <!-- Precision SVG Connectors Behind HTML Cards -->
+          <svg class="macro-svg-bg" viewBox="0 0 1448 516" aria-hidden="true">
+            <defs>
+              <marker id="mB" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+                <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#1D568C" />
+              </marker>
+              <marker id="mT" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+                <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#9A632E" />
+              </marker>
+              <marker id="mS" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+                <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#475569" />
+              </marker>
+            </defs>
+
+            <!-- Forward Links (y = 258) -->
+            <line id="mlink-0" class="macro-link is-active" x1="272" y1="258" x2="306" y2="258" stroke="#475569" stroke-width="2.4" marker-end="url(#mS)" />
+            <line id="mlink-1" class="macro-link" x1="560" y1="258" x2="594" y2="258" stroke="#1D568C" stroke-width="2.4" marker-end="url(#mB)" />
+            <line id="mlink-2" class="macro-link" x1="848" y1="258" x2="882" y2="258" stroke="#9A632E" stroke-width="2.4" marker-end="url(#mT)" />
+            <line id="mlink-3" class="macro-link" x1="1136" y1="258" x2="1170" y2="258" stroke="#1D568C" stroke-width="2.4" marker-end="url(#mB)" />
+
+            <!-- Upper Experience Loop: Card 5 (x=1300, y=106) -> Card 3 (x=724, y=106) -->
+            <path id="mlink-4" class="macro-link" d="M 1300 106 L 1300 40 L 724 40 L 724 100" fill="none" stroke="#1D568C" stroke-width="2.4" marker-end="url(#mB)" />
+
+            <!-- Lower Physical Feedback Loop: Card 4 (x=1012, y=410) -> Card 2 (x=436, y=410) -->
+            <path id="mlink-fb" class="macro-link" d="M 1012 410 L 1012 478 L 436 478 L 436 416" fill="none" stroke="#9A632E" stroke-width="2.4" marker-end="url(#mT)" />
+          </svg>
+
+          <!-- Card 1: 任务下达 (x = 24) -->
+          <article class="m-card neutral-card is-active" data-mnode="0" style="left:24px;">
+            <div class="m-step">STEP 01</div>
+            <h3 class="m-title">任务下达</h3>
+            <div class="m-thumb">
+              <img src="assets/f1-sim.jpg" alt="工位任务目标示意" />
             </div>
-            <div class="takeaway-item safe-accent">
-              <h3>安全只有一个出口</h3>
-              <p>所有动作统一经传统安全内核校验后放行</p>
+            <div class="m-role" style="color:#475569;">传统产线工单接入</div>
+            <p class="m-desc">明确目标料架、放置区与清空判据</p>
+          </article>
+
+          <!-- Card 2: 状态感知 (x = 312) -->
+          <article class="m-card embodied-card" data-mnode="1" style="left:312px;">
+            <div class="m-step">STEP 02</div>
+            <h3 class="m-title">状态感知</h3>
+            <div class="m-thumb">
+              <img src="assets/arch-perception.webp" alt="F1 实景分割与位姿感知" />
             </div>
-            <div class="takeaway-item trad-accent">
-              <h3>具身与传统解耦协同</h3>
-              <p>上层具身敢试错换策略，底层控制守住物理边界</p>
+            <div class="m-role">具身多模态感知</div>
+            <p class="m-desc">视觉分割定位 + 夹爪接触读数</p>
+          </article>
+
+          <!-- Card 3: 决策编排 (x = 600) -->
+          <article class="m-card embodied-card" data-mnode="2" style="left:600px;">
+            <div class="m-step">STEP 03</div>
+            <h3 class="m-title">决策编排</h3>
+            <div class="m-thumb" style="background:#0F172A;padding:10px;justify-content:flex-start;">
+              <div style="font-family:var(--font-mono);font-size:12px;line-height:1.55;color:#E2E8F0;text-align:left;">
+                <div style="color:#38BDF8;"># 冻结程序优先</div>
+                <div>if seen(scene):</div>
+                <div style="padding-left:12px;color:#4ADE80;">run_frozen_skill()</div>
+                <div>else: <span style="color:#FBBF24;">ask_astra()</span></div>
+              </div>
             </div>
+            <div class="m-role">程序优先 + 模型兜底</div>
+            <p class="m-desc">常规跑确定性程序，异常才问模型</p>
+          </article>
+
+          <!-- Card 4: 安全执行 (x = 888) -->
+          <article class="m-card trad-card" data-mnode="3" style="left:888px;">
+            <div class="m-step">STEP 04</div>
+            <h3 class="m-title">安全执行</h3>
+            <div class="m-thumb" style="background:#FFFFFF;">
+              <img src="assets/f1-urdf.webp" style="object-fit:contain;padding:4px;" alt="F1 URDF 安全运动控制" />
+            </div>
+            <div class="m-role">传统规划 + 安全联锁</div>
+            <p class="m-desc">防撞限位复核后平滑驱动 F1 本体</p>
+          </article>
+
+          <!-- Card 5: 经验沉淀 (x = 1176) -->
+          <article class="m-card embodied-card" data-mnode="4" style="left:1176px;">
+            <div class="m-step">STEP 05</div>
+            <h3 class="m-title">经验沉淀</h3>
+            <div class="m-thumb">
+              <img src="assets/arch-console.webp" alt="F1-infra 运行时间线与评测" />
+            </div>
+            <div class="m-role">具身验证与进化</div>
+            <p class="m-desc">记录回执、独立验证并晋升入库</p>
+          </article>
+        </div>
+
+        <div class="takeaway-strip">
+          <div class="takeaway-item">
+            <h3>大模型退居兜底</h3>
+            <p>成熟工序直接跑冻结程序，在线零思考延迟</p>
+          </div>
+          <div class="takeaway-item safe-accent">
+            <h3>安全只有一个出口</h3>
+            <p>一切动作必须通过传统安全内核复核放行</p>
+          </div>
+          <div class="takeaway-item trad-accent">
+            <h3>具身与传统优势互补</h3>
+            <p>具身层处理非结构化变化，传统层保障可靠执行</p>
           </div>
         </div>
 
         <footer class="slide-foot">
-          <span>具身智能 × 传统自动化 · F1 Harness 总体框架</span>
+          <span>具身智能 × 传统自动化 · F1 Harness 宏观闭环</span>
           <span class="page-no">03 / 05</span>
         </footer>
       </section>
 
       <!-- ====================================================================
-           SLIDE 4 (#4): 02 框架图 B · 算法与组件（三条横向泳道）
+           SLIDE 4 (#4): 02 框架图 B · 算法与组件（图文支撑 + 来源小标 + 清晰字号层级）
            ==================================================================== -->
       <section class="slide" data-index="3" aria-label="框架图 B 算法与组件">
         <header class="slide-head">
-          <div>
+          <div class="head-top">
             <div class="kicker">02 · 总体框架 · 算法与组件</div>
-            <h2 class="slide-title">F1 Harness 三泳道：<em>快路径执行</em>，慢路径兜底，经验反哺</h2>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身智能组件</span>
+              <span class="legend-item"><i class="swatch swatch-trad"></i>传统规划与控制</span>
+              <span class="legend-item"><i class="swatch swatch-safe"></i>自研安全内核</span>
+            </div>
           </div>
-          <div class="legend">
-            <span class="legend-item"><i class="swatch swatch-embodied"></i>具身算法组件</span>
-            <span class="legend-item"><i class="swatch swatch-trad"></i>传统规划与控制</span>
-            <span class="legend-item"><i class="swatch swatch-safe"></i>安全内核（唯一出口）</span>
-          </div>
+          <h2 class="slide-title">F1 Harness 三泳道：<em>前沿开源生态</em> × <em>自研安全底座</em></h2>
         </header>
 
-        <div class="swimlane-wrap">
-          <svg viewBox="0 0 1432 612" width="100%" height="100%" aria-label="F1 Harness 三泳道组件图">
+        <div class="arch-board">
+          <!-- 3 Horizontal Swimlane Backdrops -->
+          <div class="lane-band lane-slow">
+            <div class="lane-side">
+              <div class="lane-name">慢路径</div>
+              <div class="lane-caption">新场景与异常兜底</div>
+            </div>
+          </div>
+
+          <div class="lane-band lane-fast">
+            <div class="lane-side">
+              <div class="lane-name">快路径</div>
+              <div class="lane-caption">在线闭环主干<br/>0 次大模型调用</div>
+            </div>
+          </div>
+
+          <div class="lane-band lane-exp">
+            <div class="lane-side">
+              <div class="lane-name">经验路径</div>
+              <div class="lane-caption">记录 · 评测 · 晋升</div>
+            </div>
+          </div>
+
+          <!-- Precision Non-Intersecting SVG Connectors -->
+          <svg class="arch-svg-layer" viewBox="0 0 1448 616" aria-hidden="true">
             <defs>
-              <marker id="sBlue" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#1F568B" />
+              <marker id="aB" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#1D568C" />
               </marker>
-              <marker id="sTrad" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#9A6533" />
+              <marker id="aT" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#9A632E" />
               </marker>
-              <marker id="sSafe" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#182230" />
+              <marker id="aS" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#151E2C" />
               </marker>
             </defs>
 
-            <!-- ==================== SWIMLANE BACKGROUNDS ==================== -->
-            <!-- Lane 1: Slow Path -->
-            <rect x="0" y="8" width="1432" height="154" rx="8" fill="#F6F9FD" stroke="#D5E2F0" stroke-width="1.2" />
-            <rect x="0" y="8" width="148" height="154" rx="8" fill="#E8F1FA" />
-            <text x="24" y="76" font-size="20" font-weight="700" fill="#1F568B">慢路径</text>
-            <text x="24" y="102" font-size="14" font-weight="600" fill="#4B5563">异常与新场景</text>
-            <text x="24" y="124" font-size="13" fill="#7B8494">按需低频介入</text>
+            <!-- 1. Slow Path Escalation & Return -->
+            <line x1="436" y1="186" x2="436" y2="132" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
+            <text x="426" y="162" text-anchor="end" font-size="12" font-weight="700" fill="#1D568C">没见过 / 重试用尽</text>
 
-            <!-- Lane 2: Fast Path (Primary) -->
-            <rect x="0" y="180" width="1432" height="248" rx="8" fill="#FFFFFF" stroke="#1F568B" stroke-width="1.8" />
-            <rect x="0" y="180" width="148" height="248" rx="8" fill="#1F568B" />
-            <text x="24" y="290" font-size="22" font-weight="700" fill="#FFFFFF">快路径</text>
-            <text x="24" y="318" font-size="14" font-weight="600" fill="#DCEBFA">在线闭环执行</text>
-            <text x="24" y="340" font-size="13" fill="#B6D2EE">0 次大模型调用</text>
+            <line x1="802" y1="74" x2="852" y2="74" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
 
-            <!-- Lane 3: Experience Path -->
-            <rect x="0" y="446" width="1432" height="158" rx="8" fill="#F8F9FB" stroke="#DCE1EA" stroke-width="1.2" />
-            <rect x="0" y="446" width="148" height="158" rx="8" fill="#EDEFF4" />
-            <text x="24" y="514" font-size="20" font-weight="700" fill="#161B22">经验路径</text>
-            <text x="24" y="540" font-size="14" font-weight="600" fill="#4B5563">记录 · 评测 · 冻结</text>
-            <text x="24" y="562" font-size="13" fill="#7B8494">持续反哺程序库</text>
+            <path d="M 1030 128 L 1030 156 L 520 156 L 520 182" fill="none" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
+            <text x="775" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="#1D568C">独立验证通过 → 冻结写回程序库</text>
 
-            <!-- ==================== NON-INTERSECTING CONNECTORS ==================== -->
-            <!-- 1. Slow Path Escalation & Return (between 程序库 x=390..572 and Astra) -->
-            <line x1="442" y1="214" x2="442" y2="136" stroke="#1F568B" stroke-width="2" class="anim-slow" marker-end="url(#sBlue)" />
-            <text x="430" y="175" text-anchor="end" font-size="13" font-weight="700" fill="#1F568B">没见过 / 重试用尽</text>
+            <!-- 2. Fast Path Spine Connectors (y = 292) -->
+            <line x1="354" y1="292" x2="378" y2="292" stroke="#1D568C" stroke-width="2.6" class="anim-fast" marker-end="url(#aB)" />
+            <line x1="568" y1="292" x2="592" y2="292" stroke="#1D568C" stroke-width="2.6" class="anim-fast" marker-end="url(#aB)" />
+            <line x1="782" y1="292" x2="806" y2="292" stroke="#9A632E" stroke-width="2.6" class="anim-fast" marker-end="url(#aS)" />
+            <line x1="996" y1="292" x2="1020" y2="292" stroke="#151E2C" stroke-width="2.6" class="anim-fast" marker-end="url(#aT)" />
+            <line x1="1210" y1="292" x2="1234" y2="292" stroke="#9A632E" stroke-width="2.6" class="anim-fast" marker-end="url(#aT)" />
 
-            <line x1="726" y1="85" x2="778" y2="85" stroke="#1F568B" stroke-width="2" class="anim-slow" marker-end="url(#sBlue)" />
-
-            <path d="M 924 132 L 924 168 L 524 168 L 524 210" fill="none" stroke="#1F568B" stroke-width="2" class="anim-slow" marker-end="url(#sBlue)" />
-            <text x="724" y="160" text-anchor="middle" font-size="13" font-weight="700" fill="#1F568B">验证通过后冻结写回</text>
-
-            <!-- 2. Fast Path Main Spine Connectors (y = 286) -->
-            <line x1="362" y1="286" x2="386" y2="286" stroke="#1F568B" stroke-width="2.6" class="anim-fast" marker-end="url(#sBlue)" />
-            <line x1="572" y1="286" x2="596" y2="286" stroke="#1F568B" stroke-width="2.6" class="anim-fast" marker-end="url(#sBlue)" />
-            <line x1="782" y1="286" x2="806" y2="286" stroke="#9A6533" stroke-width="2.6" class="anim-fast" marker-end="url(#sSafe)" />
-            <line x1="992" y1="286" x2="1016" y2="286" stroke="#182230" stroke-width="2.6" class="anim-fast" marker-end="url(#sTrad)" />
-            <line x1="1202" y1="286" x2="1226" y2="286" stroke="#9A6533" stroke-width="2.6" class="anim-fast" marker-end="url(#sTrad)" />
-
-            <!-- Fast-path Real-time Feedback Rail inside Lane 2 (x = 1296 -> 271, y = 404) -->
-            <path d="M 1296 358 L 1296 404 L 271 404 L 271 362" fill="none" stroke="#9A6533" stroke-width="2" class="anim-fast" marker-end="url(#sTrad)" />
-            <rect x="580" y="389" width="390" height="28" rx="14" fill="#FBF6F0" stroke="#DFC6AC" />
-            <text x="775" y="408" text-anchor="middle" font-size="13" font-weight="700" fill="#9A6533">
-              闭环反馈：最新图像、关节反馈与夹爪读数回到感知
+            <!-- Fast Path Feedback Rail (inside bottom of Lane 2: x = 1304 -> 260, y = 428) -->
+            <path d="M 1304 398 L 1304 430 L 260 430 L 260 402" fill="none" stroke="#9A632E" stroke-width="2" class="anim-fast" marker-end="url(#aT)" />
+            <rect x="590" y="417" width="380" height="24" rx="12" fill="#FBF5EE" stroke="#E2C6A8" />
+            <text x="780" y="433" text-anchor="middle" font-size="12" font-weight="700" fill="#9A632E">
+              实时物理反馈：图像、关节与夹爪 CAN 读数回流
             </text>
 
-            <!-- 3. Experience Path Connectors (Receipt drop at x = 1368, zero crossing!) -->
-            <line x1="1368" y1="358" x2="1368" y2="474" stroke="#4B5563" stroke-width="2" class="anim-slow" marker-end="url(#sSafe)" />
-            <rect x="1332" y="422" width="72" height="24" rx="4" fill="#FFFFFF" stroke="#CBD2DF" />
-            <text x="1368" y="439" text-anchor="middle" font-size="12.5" font-weight="700" fill="#4B5563">运行回执</text>
+            <!-- 3. Experience Path Receipt & Promotion (non-intersecting!) -->
+            <line x1="1384" y1="398" x2="1384" y2="484" stroke="#475569" stroke-width="2.2" class="anim-slow" marker-end="url(#aS)" />
+            <rect x="1348" y="446" width="72" height="22" rx="4" fill="#FFFFFF" stroke="#CBD5E1" />
+            <text x="1384" y="461" text-anchor="middle" font-size="11.5" font-weight="700" fill="#475569">运行回执</text>
 
-            <!-- Right-to-Left Experience Pipeline (y = 525) -->
-            <line x1="1060" y1="525" x2="1010" y2="525" stroke="#1F568B" stroke-width="2" class="anim-slow" marker-end="url(#sBlue)" />
-            <line x1="740" y1="525" x2="690" y2="525" stroke="#1F568B" stroke-width="2" class="anim-slow" marker-end="url(#sBlue)" />
+            <line x1="976" y1="542" x2="928" y2="542" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
 
-            <!-- Experience Promotion Upward into 程序库 (x = 481, y = 478 -> 362) -->
-            <line x1="481" y1="478" x2="481" y2="362" stroke="#1F568B" stroke-width="2.4" class="anim-slow" marker-end="url(#sBlue)" />
-            <rect x="425" y="422" width="112" height="24" rx="4" fill="#EDF4FB" stroke="#B3CBE4" />
-            <text x="481" y="439" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1F568B">晋升冻结复用</text>
-
-            <!-- ==================== LANE 1 CARDS ==================== -->
-            <g transform="translate(390, 36)">
-              <rect width="336" height="96" rx="8" fill="#FFFFFF" stroke="#1F568B" stroke-width="1.8" stroke-dasharray="6 4" />
-              <text x="20" y="36" font-size="19" font-weight="700" fill="#1F568B">大模型规划（Astra）</text>
-              <text x="20" y="64" font-size="14.5" fill="#4B5563">结合现场关键帧与失败回执，提出新抓法或程序补丁</text>
-              <text x="20" y="84" font-size="12.5" font-weight="600" fill="#7B8494">不直接发动作 · 只向程序层输出策略</text>
-            </g>
-
-            <g transform="translate(784, 36)">
-              <rect width="286" height="96" rx="8" fill="#FFFFFF" stroke="#1F568B" stroke-width="1.8" />
-              <text x="20" y="36" font-size="19" font-weight="700" fill="#161B22">独立验证与冻结</text>
-              <text x="20" y="64" font-size="14.5" fill="#4B5563">真机多布局验证达标后</text>
-              <text x="20" y="84" font-size="14.5" font-weight="600" fill="#1F568B">固化为确定性 Python 程序</text>
-            </g>
-
-            <!-- ==================== LANE 2 CARDS (6 COMPONENTS) ==================== -->
-            <!-- 1. 状态感知 -->
-            <g transform="translate(180, 214)">
-              <rect width="182" height="144" rx="8" fill="#FFFFFF" stroke="#1F568B" stroke-width="2" />
-              <rect width="182" height="6" rx="3" fill="#1F568B" />
-              <text x="16" y="36" font-size="19" font-weight="700" fill="#161B22">状态感知</text>
-              <line x1="16" y1="52" x2="166" y2="52" stroke="#EAECEF" />
-              <text x="16" y="78" font-size="14" font-weight="600" fill="#1F568B">SAM 分割 + 深度</text>
-              <text x="16" y="102" font-size="13.5" fill="#4B5563">目标位姿与余料识别</text>
-              <text x="16" y="124" font-size="13.5" fill="#4B5563">夹爪 CAN 接触判抓</text>
-            </g>
-
-            <!-- 2. 程序库 -->
-            <g transform="translate(390, 214)">
-              <rect width="182" height="144" rx="8" fill="#EDF4FB" stroke="#1F568B" stroke-width="2.2" />
-              <rect width="182" height="6" rx="3" fill="#1F568B" />
-              <text x="16" y="36" font-size="19" font-weight="700" fill="#161B22">程序库</text>
-              <line x1="16" y1="52" x2="166" y2="52" stroke="#CFE0F2" />
-              <text x="16" y="78" font-size="14" font-weight="700" fill="#1F568B">PyRUA 冻结程序</text>
-              <text x="16" y="102" font-size="13.5" fill="#4B5563">RPent 调度原子技能</text>
-              <text x="16" y="124" font-size="13.5" fill="#4B5563">分支判断与限次重试</text>
-            </g>
-
-            <!-- 3. 运动规划 -->
-            <g transform="translate(600, 214)">
-              <rect width="182" height="144" rx="8" fill="#FFFFFF" stroke="#9A6533" stroke-width="2" />
-              <rect width="182" height="6" rx="3" fill="#9A6533" />
-              <text x="16" y="36" font-size="19" font-weight="700" fill="#161B22">技能与规划</text>
-              <line x1="16" y1="52" x2="166" y2="52" stroke="#EAECEF" />
-              <text x="16" y="78" font-size="14" font-weight="600" fill="#9A6533">IK 逆解 · OMPL</text>
-              <text x="16" y="102" font-size="13.5" fill="#4B5563">多候选扫掠碰撞检查</text>
-              <text x="16" y="124" font-size="13" font-weight="600" fill="#1F568B">柔性接触可接 VLA</text>
-            </g>
-
-            <!-- 4. 安全内核 (Authoritative Single Exit) -->
-            <g transform="translate(810, 208)">
-              <rect width="182" height="156" rx="8" fill="#182230" stroke="#182230" stroke-width="2" />
-              <text x="16" y="38" font-size="20" font-weight="700" fill="#FFFFFF">安全内核</text>
-              <rect x="16" y="48" width="96" height="22" rx="4" fill="#2E3D52" />
-              <text x="64" y="63" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF">唯一动作出口</text>
-              <text x="16" y="94" font-size="14" font-weight="600" fill="#E2E8F0">F1 Owner 统一核验</text>
-              <text x="16" y="118" font-size="13.5" fill="#CBD5E1">授权 · 限位 · 碰撞复核</text>
-              <text x="16" y="140" font-size="13.5" fill="#CBD5E1">状态不明绝不重发</text>
-            </g>
-
-            <!-- 5. 轨迹平滑 -->
-            <g transform="translate(1020, 214)">
-              <rect width="182" height="144" rx="8" fill="#FFFFFF" stroke="#9A6533" stroke-width="2" />
-              <rect width="182" height="6" rx="3" fill="#9A6533" />
-              <text x="16" y="36" font-size="19" font-weight="700" fill="#161B22">轨迹平滑</text>
-              <line x1="16" y1="52" x2="166" y2="52" stroke="#EAECEF" />
-              <text x="16" y="78" font-size="14" font-weight="600" fill="#9A6533">Ruckig 在线插补</text>
-              <text x="16" y="102" font-size="13.5" fill="#4B5563">限制速度与加速度</text>
-              <text x="16" y="124" font-size="13.5" fill="#4B5563">保障双臂运动平稳</text>
-            </g>
-
-            <!-- 6. F1 执行 -->
-            <g transform="translate(1230, 214)">
-              <rect width="182" height="144" rx="8" fill="#FBF6F0" stroke="#9A6533" stroke-width="2" />
-              <rect width="182" height="6" rx="3" fill="#9A6533" />
-              <text x="16" y="36" font-size="19" font-weight="700" fill="#161B22">F1 机器人</text>
-              <line x1="16" y1="52" x2="166" y2="52" stroke="#E8D8C8" />
-              <text x="16" y="78" font-size="14" font-weight="700" fill="#9A6533">自研轮式双臂本体</text>
-              <text x="16" y="102" font-size="13.5" fill="#4B5563">AGV 底盘跨工位移动</text>
-              <text x="16" y="124" font-size="13.5" fill="#4B5563">双 7 轴臂 + 平行夹爪</text>
-            </g>
-
-            <!-- ==================== LANE 3 CARDS ==================== -->
-            <!-- Left: 经验库 -->
-            <g transform="translate(390, 478)">
-              <rect width="294" height="96" rx="8" fill="#FFFFFF" stroke="#1F568B" stroke-width="2" />
-              <text x="20" y="36" font-size="19" font-weight="700" fill="#1F568B">经验库（ASPIRE）</text>
-              <text x="20" y="64" font-size="14.5" fill="#4B5563">冻结程序 · 原子技能库 · 修复知识</text>
-              <text x="20" y="84" font-size="12.5" font-weight="600" fill="#7B8494">跨任务复用抓取、运输与对准技能</text>
-            </g>
-
-            <!-- Center: 漏斗评测 -->
-            <g transform="translate(740, 478)">
-              <rect width="264" height="96" rx="8" fill="#FFFFFF" stroke="#CBD2DF" stroke-width="1.6" />
-              <text x="20" y="36" font-size="19" font-weight="700" fill="#161B22">漏斗评测</text>
-              <text x="20" y="64" font-size="14.5" fill="#4B5563">统计到达阶段、耗时与成功率</text>
-              <text x="20" y="84" font-size="12.5" fill="#7B8494">记录大模型调用次数</text>
-            </g>
-
-            <!-- Right: 运行记录 -->
-            <g transform="translate(1060, 478)">
-              <rect width="352" height="96" rx="8" fill="#FFFFFF" stroke="#CBD2DF" stroke-width="1.6" />
-              <text x="20" y="36" font-size="19" font-weight="700" fill="#161B22">运行记录</text>
-              <text x="20" y="64" font-size="14.5" fill="#4B5563">落盘每步控制回执、相机关键帧与异常原因</text>
-              <text x="20" y="84" font-size="12.5" fill="#7B8494">为故障复盘与程序迭代提供完整证据</text>
-            </g>
+            <line x1="476" y1="488" x2="476" y2="402" stroke="#1D568C" stroke-width="2.4" class="anim-slow" marker-end="url(#aB)" />
+            <rect x="424" y="446" width="104" height="22" rx="4" fill="#ECF4FC" stroke="#B3CEE8" />
+            <text x="476" y="461" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1D568C">晋升冻结复用</text>
           </svg>
+
+          <!-- ==================== LANE 1 HTML CARDS ==================== -->
+          <!-- Slow Card 1: Astra -->
+          <div class="h-card dashed-c" style="left:382px;top:20px;width:420px;height:108px;">
+            <div class="h-thumb" style="background:#0F172A;flex-direction:column;padding:8px;gap:4px;">
+              <div style="font-family:var(--font-mono);font-size:10.5px;color:#94A3B8;width:100%;">IMG + LEDGER →</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:#38BDF8;font-weight:700;width:100%;">def recover():</div>
+              <div style="font-family:var(--font-mono);font-size:10.5px;color:#4ADE80;width:100%;">  reobserve()</div>
+            </div>
+            <div class="h-main">
+              <div class="c-title">大模型规划</div>
+              <div class="badge-row">
+                <span class="src-pill"><b>OpenAI</b><span>GPT-6 Astra</span></span>
+              </div>
+              <div class="c-note">仅在未知场景介入，输出新策略补丁</div>
+            </div>
+          </div>
+
+          <!-- Slow Card 2: Independent Verifier -->
+          <div class="h-card embodied-c" style="left:858px;top:20px;width:364px;height:108px;">
+            <div class="h-thumb" style="background:#ECF4FC;">
+              <svg viewBox="0 0 110 74" width="104" height="70">
+                <rect x="10" y="14" width="90" height="46" rx="6" fill="#FFFFFF" stroke="#1D568C" stroke-width="1.8"/>
+                <path d="M26 38 l10 10 l20 -22" fill="none" stroke="#1D568C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="76" y="43" font-family="monospace" font-size="13" font-weight="700" fill="#1D568C">10/10</text>
+              </svg>
+            </div>
+            <div class="h-main">
+              <div class="c-title">独立验证冻结</div>
+              <div class="badge-row">
+                <span class="src-pill"><b>NVIDIA</b><span>ASPIRE Verifier</span></span>
+              </div>
+              <div class="c-note">真机复现达标后，才准许固化入库</div>
+            </div>
+          </div>
+
+          <!-- ==================== LANE 2 HTML CARDS (6 CORE MODULES) ==================== -->
+          <!-- 1. 状态感知 (x = 166, w = 188) -->
+          <div class="c-card embodied-c" style="left:166px;top:186px;width:188px;height:212px;">
+            <div>
+              <div class="c-title">状态感知</div>
+              <div class="badge-row" style="margin-top:5px;">
+                <span class="src-pill"><b>Meta</b><span>SAM 2</span></span>
+              </div>
+            </div>
+            <div class="c-vis">
+              <img src="assets/arch-perception.webp" alt="F1 SAM2 视觉分割" />
+            </div>
+            <div class="c-note">RGB-D 分割定位 + CAN 判抓</div>
+          </div>
+
+          <!-- 2. 程序库 (x = 380, w = 188) -->
+          <div class="c-card embodied-c" style="left:380px;top:186px;width:188px;height:212px;background:#F5FAFF;">
+            <div>
+              <div class="c-title">程序库</div>
+              <div class="badge-row" style="margin-top:5px;">
+                <span class="src-pill"><b>北大</b><span>PyRUA</span></span>
+                <span class="src-pill"><b>清华·无问</b><span>RPent</span></span>
+              </div>
+            </div>
+            <div class="c-vis" style="background:#0F172A;padding:8px;justify-content:flex-start;">
+              <div style="font-family:var(--font-mono);font-size:10.5px;line-height:1.45;color:#E2E8F0;">
+                <div style="color:#4ADE80;">for cell in rack:</div>
+                <div>  pose = f1.locate(cell)</div>
+                <div>  f1.grasp(pose)</div>
+                <div style="color:#38BDF8;">  f1.place_to_bag()</div>
+              </div>
+            </div>
+            <div class="c-note">跑冻结程序，编排技能与重试</div>
+          </div>
+
+          <!-- 3. 技能与规划 (x = 594, w = 188) -->
+          <div class="c-card trad-c" style="left:594px;top:186px;width:188px;height:212px;">
+            <div>
+              <div class="c-title">技能规划</div>
+              <div class="badge-row" style="margin-top:5px;">
+                <span class="src-pill trad"><b>工业库</b><span>OMPL+IK</span></span>
+                <span class="src-pill"><b>PI</b><span>π0.5</span></span>
+              </div>
+            </div>
+            <div class="c-vis">
+              <img src="assets/arch-planning.webp" alt="FK 与避障路径规划" />
+            </div>
+            <div class="c-note">多候选避障规划 · 柔性接 VLA</div>
+          </div>
+
+          <!-- 4. 安全内核 (x = 808, w = 188) -->
+          <div class="c-card safe-c" style="left:808px;top:186px;width:188px;height:212px;">
+            <div>
+              <div class="c-title">安全内核</div>
+              <div class="badge-row" style="margin-top:5px;">
+                <span class="src-pill on-dark"><b>自研核心</b><span>F1 Owner</span></span>
+              </div>
+            </div>
+            <div class="c-vis">
+              <svg viewBox="0 0 160 74" width="154" height="70">
+                <rect x="8" y="10" width="144" height="54" rx="6" fill="#162030" stroke="#38BDF8" stroke-width="1.5"/>
+                <path d="M30 24 l12 5 v11 c0 9 -12 14 -12 14 c0 0 -12 -5 -12 -14 v-11 z" fill="#0EA5E9" opacity="0.25" stroke="#38BDF8" stroke-width="1.8"/>
+                <path d="M25 37 l4 4 l8 -8" fill="none" stroke="#4ADE80" stroke-width="2.4" stroke-linecap="round"/>
+                <text x="52" y="33" font-size="11.5" font-weight="700" fill="#F8FAFC">唯一动作出口</text>
+                <text x="52" y="50" font-size="10.5" fill="#94A3B8">限位 · 防撞 · 授权锁</text>
+              </svg>
+            </div>
+            <div class="c-note">统一核验放行，异常立即刹停</div>
+          </div>
+
+          <!-- 5. 轨迹平滑 (x = 1022, w = 188) -->
+          <div class="c-card trad-c" style="left:1022px;top:186px;width:188px;height:212px;">
+            <div>
+              <div class="c-title">轨迹平滑</div>
+              <div class="badge-row" style="margin-top:5px;">
+                <span class="src-pill trad"><b>工业标准</b><span>Ruckig</span></span>
+              </div>
+            </div>
+            <div class="c-vis" style="background:#FFFFFF;">
+              <svg viewBox="0 0 160 74" width="154" height="70">
+                <line x1="16" y1="60" x2="148" y2="60" stroke="#CBD5E1" stroke-width="1.2"/>
+                <line x1="16" y1="14" x2="16" y2="60" stroke="#CBD5E1" stroke-width="1.2"/>
+                <path d="M18 58 L48 18 L112 18 L142 58" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <path d="M18 58 C 38 58, 42 20, 68 20 L 94 20 C 120 20, 124 58, 144 58" fill="none" stroke="#9A632E" stroke-width="2.8"/>
+                <text x="82" y="46" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="700" fill="#9A632E">S-Curve Jerk</text>
+              </svg>
+            </div>
+            <div class="c-note">在线限速限加，消除机械顿挫</div>
+          </div>
+
+          <!-- 6. F1 本体 (x = 1236, w = 188) -->
+          <div class="c-card trad-c" style="left:1236px;top:186px;width:188px;height:212px;background:#FBF7F2;">
+            <div>
+              <div class="c-title">F1 机器人</div>
+              <div class="badge-row" style="margin-top:5px;">
+                <span class="src-pill inhouse"><b>自研本体</b><span>F1 URDF</span></span>
+              </div>
+            </div>
+            <div class="c-vis" style="background:#FFFFFF;">
+              <img src="assets/f1-urdf.webp" style="object-fit:contain;padding:2px;" alt="自研 F1 URDF" />
+            </div>
+            <div class="c-note">轮式底盘 + 双 7 轴臂执行</div>
+          </div>
+
+          <!-- ==================== LANE 3 HTML CARDS ==================== -->
+          <!-- Left: ASPIRE Experience Library -->
+          <div class="h-card embodied-c" style="left:380px;top:488px;width:542px;height:108px;">
+            <div class="h-thumb" style="background:#ECF4FC;">
+              <svg viewBox="0 0 110 74" width="104" height="70">
+                <rect x="14" y="14" width="82" height="14" rx="3" fill="#1D568C"/>
+                <rect x="14" y="32" width="82" height="14" rx="3" fill="#3B82F6"/>
+                <rect x="14" y="50" width="82" height="14" rx="3" fill="#93C5FD"/>
+                <text x="55" y="24" text-anchor="middle" font-size="9" font-weight="700" fill="#FFF">FROZEN SKILLS</text>
+                <text x="55" y="42" text-anchor="middle" font-size="9" font-weight="700" fill="#FFF">REPAIR GUIDES</text>
+                <text x="55" y="60" text-anchor="middle" font-size="9" font-weight="700" fill="#0F172A"> AUDIT HASH</text>
+              </svg>
+            </div>
+            <div class="h-main">
+              <div class="c-title">经验库与记忆管理</div>
+              <div class="badge-row">
+                <span class="src-pill"><b>NVIDIA</b><span>ASPIRE</span></span>
+                <span class="src-pill"><b>清华·无问</b><span>RLinf Memory</span></span>
+              </div>
+              <div class="c-note">沉淀冻结程序、原子技能与失败修复知识，跨轮次直接复用</div>
+            </div>
+          </div>
+
+          <!-- Right: Run Records & Funnel Evaluation (with real 4242 console image) -->
+          <div class="h-card" style="left:980px;top:488px;width:444px;height:108px;">
+            <div class="h-thumb">
+              <img src="assets/arch-console.webp" alt="F1-infra 4242 控制台记录" />
+            </div>
+            <div class="h-main">
+              <div class="c-title">运行记录与漏斗评测</div>
+              <div class="badge-row">
+                <span class="src-pill inhouse"><b>自研工作台</b><span>F1-infra 4242</span></span>
+              </div>
+              <div class="c-note">落盘每步回执、相机关键帧与阶段耗时</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Technology Direction Summary -->
+        <div class="tech-direction-bar">
+          <div class="td-col">
+            <i class="swatch swatch-embodied"></i>
+            <strong>具身开源与模型层：</strong>
+            <span>Meta SAM2 · 北大 PyRUA · 清华/无问 RPent · OpenAI Astra · NVIDIA ASPIRE</span>
+          </div>
+          <div class="td-col">
+            <i class="swatch swatch-trad"></i>
+            <strong>工业规划控制层：</strong>
+            <span>原生 IK · OMPL 采样避障 · Ruckig 在线平滑</span>
+          </div>
+          <div class="td-col">
+            <i class="swatch swatch-safe"></i>
+            <strong>自研核心护城河：</strong>
+            <span>F1 Owner 安全内核 · F1 轮式双臂本体 · 4242 工作台</span>
+          </div>
         </div>
 
         <footer class="slide-foot">
-          <span>组件命名与职责对齐 F1 Harness 目标架构说明</span>
+          <span>技术栈构成：吸收头部开源具身生态，自研掌握安全控制内核与真机闭环适配</span>
           <span class="page-no">04 / 05</span>
         </footer>
       </section>
 
       <!-- ====================================================================
-           SLIDE 5 (#5): 03 工厂场景示例（九宫格上下料 · 自研 F1 落地）
+           SLIDE 5 (#5): 03 工厂场景示例（九宫格上下料 · 自研 F1 真实 URDF 与实拍）
            ==================================================================== -->
       <section class="slide" data-index="4" aria-label="工厂场景示例">
         <header class="slide-head">
-          <div>
+          <div class="head-top">
             <div class="kicker">03 · 工厂场景示例</div>
-            <h2 class="slide-title">九宫格泡沫纸上下料：第 1 格规划，<em>第 2–9 格直接复用</em></h2>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch swatch-trad"></i>慢路径（首格规划）</span>
+              <span class="legend-item"><i class="swatch swatch-embodied"></i>快路径（冻结复用）</span>
+            </div>
           </div>
-          <div class="legend">
-            <span class="legend-item"><i class="swatch swatch-trad"></i>慢路径（首格规划）</span>
-            <span class="legend-item"><i class="swatch swatch-embodied"></i>快路径（冻结复用）</span>
-          </div>
+          <h2 class="slide-title">九宫格泡沫纸上下料：第 1 格规划，<em>第 2–9 格直接复用</em></h2>
         </header>
 
         <div class="case-layout">
-          <!-- Left Column: Real Photos + Auto-Clearing 9-Grid + Path Bridge -->
           <div class="case-left">
             <div class="scene-photos">
               <figure class="photo-frame">
@@ -1653,91 +2053,87 @@
               </figure>
             </div>
 
-            <!-- Auto-clearing 3x3 Rack + 4-Step Loop -->
             <div class="workcell-loop-box">
-              <div class="rack-wrap">
+              <div>
                 <div class="rack-grid" id="rackGrid" aria-label="九宫格清料自动示意"></div>
               </div>
 
               <div class="loop-steps">
                 <div class="loop-head">
                   <strong>单格清料往返闭环</strong>
-                  <span class="loop-status" id="rackStatus">第 6 / 9 格 · 快路径执行中</span>
+                  <span class="loop-status" id="rackStatus">第 6 / 9 格 · 快路径复用中</span>
                 </div>
 
                 <div class="loop-cards">
                   <div class="loop-step-card">
                     <b><span>01</span>选格定位</b>
-                    <p>识别余料格口，定位外露泡沫纸边</p>
+                    <p>SAM2 识别余料格口与外露纸边</p>
                   </div>
                   <div class="loop-step-card">
                     <b><span>02</span>夹紧抓净</b>
-                    <p>闭爪抽出，结合夹爪读数确认全部带出</p>
+                    <p>闭爪抽出，CAN 读数确认全部带出</p>
                   </div>
                   <div class="loop-step-card">
                     <b><span>03</span>移至放置区</b>
-                    <p>轮式底盘移动到料袋旁，松爪落袋</p>
+                    <p>轮式底盘移至料袋旁，松爪落袋</p>
                   </div>
                   <div class="loop-step-card">
                     <b><span>04</span>返回下一格</b>
-                    <p>回到料架复检，循环直至九格全空</p>
+                    <p>回架复检，循环直至九格全部清空</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Direct Tie-Back to Diagram B -->
             <div class="path-bridge">
               <div class="bridge-card slow">
                 <strong>第 1 格 · 走慢路径</strong>
-                <span>首次面对新料架，大模型规划抓法并验证冻结</span>
+                <span>首次面对新料架，Astra 规划抓法并经 ASPIRE 验证冻结</span>
               </div>
               <div class="bridge-card fast">
                 <strong>第 2–9 格 · 走快路径</strong>
-                <span>直接调用冻结程序循环清格，0 次大模型调用</span>
+                <span>PyRUA 直接循环调用冻结程序清格，0 次大模型调用</span>
               </div>
             </div>
           </div>
 
-          <!-- Right Column: Self-Developed F1 Robot Showcase & Spec Table -->
           <div class="case-right">
             <figure class="f1-hero-card">
               <div class="f1-hero-visual">
-                <img src="assets/mobile.webp" alt="自研 F1 轮式双臂机器人" />
+                <img src="assets/f1-urdf.webp" alt="自研 F1 真实 URDF 三维模型" />
               </div>
               <figcaption class="f1-hero-bar">
-                <strong>F1 轮式双臂机器人</strong>
-                <span>自研作业本体</span>
+                <strong>自研 F1 轮式双臂机器人</strong>
+                <span>F1-4242 真实 URDF 构型（22 自由度上身 + 轮式底盘）</span>
               </figcaption>
             </figure>
 
-            <!-- F1 参数区：如需更新具体实测指标，直接修改下方对应单元格文字 -->
             <div class="spec-card">
               <table class="spec-table">
                 <tbody>
                   <tr>
-                    <th>本体形态</th>
-                    <td>轮式移动底盘 + 升降躯干 + 双机械臂</td>
+                    <th>本体构型</th>
+                    <td>轮式底盘 + 5 轴 Z 型折叠升降躯干 + 3 轴头 + 双臂</td>
                   </tr>
                   <tr>
-                    <th>操作自由度</th>
-                    <td>双臂各 7 自由度，覆盖九宫格高低层位</td>
+                    <th>双臂自由度</th>
+                    <td>左右各 7 自由度机械臂，覆盖九宫格高低全部层位</td>
                   </tr>
                   <tr>
                     <th>移动方式</th>
-                    <td>AGV 轮式底盘，料架与放置区间自主往返</td>
+                    <td>AGV 轮式自主移动，料架与放置区间连续往返</td>
                   </tr>
                   <tr>
                     <th>末端与感知</th>
-                    <td>左右平行夹爪（CAN 接触反馈）+ 多路深度相机</td>
+                    <td>平行夹爪（CAN 接触反馈）+ 头部/双腕多路深度相机</td>
                   </tr>
                   <tr>
                     <th>软件框架</th>
-                    <td class="hl">自研 F1 Harness（程序优先 + 大模型兜底）</td>
+                    <td class="hl">自研 F1 Harness（PyRUA/RPent 编排 + Astra 兜底）</td>
                   </tr>
                   <tr>
-                    <th>安全控制</th>
-                    <td>F1 Owner 唯一动作出口 + Ruckig 轨迹平滑</td>
+                    <th>安全内核</th>
+                    <td>F1 Owner 唯一动作出口 + Ruckig 在线轨迹平滑</td>
                   </tr>
                 </tbody>
               </table>
@@ -1746,7 +2142,7 @@
         </div>
 
         <footer class="slide-foot">
-          <span>自研 F1 轮式机器人 · 工厂上下料与分拣落地示例</span>
+          <span>自研 F1 轮式机器人（真实 URDF 构型与工厂实拍） · 九宫格上下料落地示例</span>
           <span class="page-no">05 / 05</span>
         </footer>
       </section>
@@ -1754,7 +2150,6 @@
     </main>
   </div>
 
-  <!-- Bottom Edge Progress Hairline -->
   <div class="progress-track" aria-hidden="true">
     <div class="progress-fill" id="progressFill"></div>
   </div>
@@ -1768,17 +2163,11 @@
       var current = 0;
       var progressFill = document.getElementById('progressFill');
 
-      /* ------------------------------------------------------------------
-         1. FULL-BLEED 16:9 VIEWPORT SCALING
-         ------------------------------------------------------------------ */
       function fitViewport() {
         var s = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
         document.documentElement.style.setProperty('--scale', s.toFixed(5));
       }
 
-      /* ------------------------------------------------------------------
-         2. SLIDE NAVIGATION, FULLSCREEN & CLICK-TO-ADVANCE
-         ------------------------------------------------------------------ */
       function goTo(index, updateHash) {
         var next = Math.max(0, Math.min(total - 1, index));
         current = next;
@@ -1837,7 +2226,6 @@
         }
       });
 
-      /* Click left 28% for prev, right 72% for next (excluding interactive agenda buttons) */
       document.getElementById('viewport').addEventListener('click', function (e) {
         if (e.target.closest('button, a')) return;
         var ratio = e.clientX / window.innerWidth;
@@ -1848,15 +2236,13 @@
         }
       });
 
-      /* Agenda jump buttons on Slide 1 */
       document.querySelectorAll('[data-jump]').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
           e.stopPropagation();
-          goTo( parseInt(btn.getAttribute('data-jump'), 10) || 0 );
+          goTo(parseInt(btn.getAttribute('data-jump'), 10) || 0);
         });
       });
 
-      /* Debounced mouse wheel navigation */
       var wheelLock = 0;
       window.addEventListener('wheel', function (e) {
         if (Math.abs(e.deltaY) < 26) return;
@@ -1878,14 +2264,10 @@
       window.addEventListener('resize', fitViewport);
       window.addEventListener('hashchange', syncHash);
 
-      /* ------------------------------------------------------------------
-         3. CALM SEQUENTIAL ANIMATIONS (Cover Ring, Slide 3 Loop, Slide 5 Grid)
-         ------------------------------------------------------------------ */
-      /* Cover ring: 1 lit node at a time */
+      /* Sequential Highlights */
       var coverNodes = Array.prototype.slice.call(document.querySelectorAll('[data-cnode]'));
       var coverIdx = 0;
 
-      /* Slide 3 Macro Loop: 1 active step + outgoing connector at a time */
       var macroNodes = Array.prototype.slice.call(document.querySelectorAll('[data-mnode]'));
       var macroLinks = [
         document.getElementById('mlink-0'),
@@ -1910,10 +2292,9 @@
         macroStep = (macroStep + 1) % 5;
       }
 
-      /* Slide 5 9-Grid Auto-Clear (1 -> 9 -> All Cleared -> Repeat) */
       var rackGrid = document.getElementById('rackGrid');
       var rackStatus = document.getElementById('rackStatus');
-      var activeCell = 6; // Start on cell 6 so print & initial glance match classic mid-task progress
+      var activeCell = 6;
 
       function renderRack(stepCell) {
         if (!rackGrid) return;
@@ -1924,7 +2305,7 @@
             html += '<div class="rack-cell cleared"><span class="idx">' + label + '</span><span class="done-mark">已空</span></div>';
           } else if (c === stepCell) {
             var cls = c === 1 ? 'active-slow' : 'active-fast';
-            var barBorder = c === 1 ? '#9A6533' : '#1F568B';
+            var barBorder = c === 1 ? '#9A632E' : '#1D568C';
             html += '<div class="rack-cell ' + cls + '"><span class="idx">' + label + '</span>' +
               '<div class="foam-sheets"><i style="border-color:' + barBorder + '"></i><i style="border-color:' + barBorder + '"></i><i style="border-color:' + barBorder + '"></i></div></div>';
           } else {
@@ -1959,12 +2340,10 @@
         }
       }, 1450);
 
-      /* Reset print state cleanly before printing */
       window.addEventListener('beforeprint', function () {
         renderRack(6);
       });
 
-      /* Initialize */
       fitViewport();
       renderRack(6);
       syncHash();
