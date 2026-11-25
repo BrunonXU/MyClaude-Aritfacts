@@ -4,6 +4,7 @@
 
 目前有：
 
+- [具身智能 × 传统自动化：融合落地框架（Neon）](neon-embodied-deck/)（2026-11-25 · Gemini 4 Neon）
 - [具身与传统：技术路线与流程框架](factory-briefing/index.html)（2026-11-25）
 - [具身智能 × 传统自动化：融合落地框架](embodied-deck/)（2026-11-25）
 - [工厂机器人：传统自动化与具身智能](harness/factory-roadmap/)（2026-11-25）
