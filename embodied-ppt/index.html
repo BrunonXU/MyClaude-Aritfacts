@@ -9,16 +9,16 @@
     - assets/f1-urdf.webp         ：自研 F1 真实 URDF 三维渲染图（源自 F1-4242 f1_wheel_0602_new.urdf）
     - assets/arm.webp             ：第 2 页 · 固定位置机械臂
     - assets/biped.webp           ：第 2 页 · 双足人形机器人
-    - assets/arch-perception.webp ：架构页 · F1 头部相机 + SAM2 分割实景
-    - assets/arch-planning.webp   ：架构页 · F1 运动学骨架与避障轨迹回放
-    - assets/arch-console.webp    ：架构页 · F1-infra 4242 运行时间线与回执界面
-    - assets/f1-factory.jpg       ：第 5 页 · F1 工厂现场实拍图
-    - assets/f1-sim.jpg           ：第 5 页 · 九宫格工位 3D 仿真图
+    - assets/arch-perception.webp ：F1 头部相机 + SAM2 分割实景
+    - assets/arch-planning.webp   ：F1 运动学骨架与避障轨迹回放
+    - assets/arch-console.webp    ：F1-infra 4242 运行时间线与回执界面
+    - assets/f1-factory.jpg       ：F1 工厂现场实拍图
+    - assets/f1-sim.jpg           ：九宫格工位 3D 仿真图
   -->
   <style>
     /* ==========================================================================
        1. DESIGN TOKENS — CLEAN LIGHT EXECUTIVE PPT
-       Blue = 具身智能 | Ochre = 传统自动化 | Charcoal = 安全唯一出口
+       Blue = 具身智能（泛化与进化） | Ochre = 传统自动化（确定性主干与安全兜底）
        ========================================================================== */
     :root {
       --bg: #FFFFFF;
@@ -38,6 +38,10 @@
       --trad-line: #E2C6A8;
 
       --safe: #151E2C;
+      --ok: #166534;
+      --ok-soft: #ECFDF3;
+      --ok-line: #BBF7D0;
+
       --font-sans: "PingFang SC", "HarmonyOS Sans SC", "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       --scale: 1;
@@ -87,14 +91,14 @@
       inset: 0;
       width: 1600px;
       height: 900px;
-      padding: 46px 76px 52px;
+      padding: 44px 74px 44px;
       background: var(--bg);
       display: flex;
       flex-direction: column;
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      transition: opacity 0.24s ease;
+      transition: opacity 0.22s ease;
     }
 
     .slide.active {
@@ -117,17 +121,17 @@
     .progress-fill {
       height: 100%;
       background: var(--embodied);
-      width: 20%;
+      width: 12.5%;
       transition: width 0.28s ease;
     }
 
     /* ==========================================================================
-       3. SLIDE HEADER (TWO-ROW SO TITLE NEVER COLLIDES WITH LEGEND) & FOOTER
+       3. HEADER & CLEAN PAGE NUMBER ONLY (ZERO GRAY FOOTNOTES!)
        ========================================================================== */
     .slide-head {
-      padding-bottom: 14px;
+      padding-bottom: 13px;
       border-bottom: 1.5px solid var(--ink);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       flex-shrink: 0;
     }
 
@@ -165,6 +169,7 @@
       height: 11px;
       border-radius: 2px;
       display: inline-block;
+      flex-shrink: 0;
     }
 
     .swatch-embodied { background: var(--embodied); }
@@ -172,7 +177,7 @@
     .swatch-safe { background: var(--safe); }
 
     .slide-title {
-      font-size: 38px;
+      font-size: 37px;
       line-height: 1.18;
       font-weight: 800;
       letter-spacing: -0.018em;
@@ -184,30 +189,25 @@
       color: var(--embodied);
     }
 
-    .slide-foot {
-      position: absolute;
-      left: 76px;
-      right: 76px;
-      bottom: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--ink-muted);
-      pointer-events: none;
+    .slide-title em.trad {
+      color: var(--trad);
     }
 
-    .page-no {
+    .page-badge {
+      position: absolute;
+      right: 74px;
+      bottom: 16px;
       font-family: var(--font-mono);
       font-weight: 700;
       font-size: 13.5px;
       letter-spacing: 0.06em;
-      color: var(--ink-body);
+      color: var(--ink-muted);
       font-variant-numeric: tabular-nums;
+      pointer-events: none;
     }
 
     /* ==========================================================================
-       4. PROVENANCE PILLS (技术来源小标) — STRONG CONTRAST & CLEAR VENDOR TAG
+       4. PROVENANCE PILLS (技术来源小标)
        ========================================================================== */
     .badge-row {
       display: flex;
@@ -231,7 +231,6 @@
       background: var(--embodied);
       color: #FFFFFF;
       font-weight: 700;
-      letter-spacing: 0.02em;
     }
 
     .src-pill span {
@@ -241,46 +240,34 @@
       background: var(--embodied-soft);
     }
 
-    .src-pill.trad {
-      border-color: var(--trad-line);
+    .src-pill.trad { border-color: var(--trad-line); }
+    .src-pill.trad b { background: var(--trad); }
+    .src-pill.trad span { background: var(--trad-soft); }
+
+    .src-pill.inhouse { border-color: #334155; }
+    .src-pill.inhouse b { background: #0F172A; color: #F8FAFC; }
+    .src-pill.inhouse span { background: #F1F5F9; color: #0F172A; }
+
+    .src-pill.on-dark { border-color: #475569; background: #233044; }
+    .src-pill.on-dark b { background: #38BDF8; color: #0F172A; }
+    .src-pill.on-dark span { background: #233044; color: #F8FAFC; }
+
+    /* Role Tag for Step Walkthrough */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2.5px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      line-height: 1.25;
     }
 
-    .src-pill.trad b {
-      background: var(--trad);
-    }
-
-    .src-pill.trad span {
-      background: var(--trad-soft);
-    }
-
-    .src-pill.inhouse {
-      border-color: #334155;
-    }
-
-    .src-pill.inhouse b {
-      background: #0F172A;
-      color: #F8FAFC;
-    }
-
-    .src-pill.inhouse span {
-      background: #F1F5F9;
-      color: #0F172A;
-    }
-
-    .src-pill.on-dark {
-      border-color: #475569;
-      background: #233044;
-    }
-
-    .src-pill.on-dark b {
-      background: #38BDF8;
-      color: #0F172A;
-    }
-
-    .src-pill.on-dark span {
-      background: #233044;
-      color: #F8FAFC;
-    }
+    .tag-trad { background: var(--trad-soft); color: var(--trad); border: 1px solid var(--trad-line); }
+    .tag-emb { background: var(--embodied-soft); color: var(--embodied); border: 1px solid var(--embodied-line); }
+    .tag-safe { background: var(--safe); color: #FFFFFF; border: 1px solid var(--safe); }
+    .tag-ok { background: var(--ok-soft); color: var(--ok); border: 1px solid var(--ok-line); }
 
     /* ==========================================================================
        5. SLIDE 1: COVER
@@ -288,7 +275,7 @@
     .cover-body {
       flex: 1;
       display: grid;
-      grid-template-columns: 1.2fr 0.95fr;
+      grid-template-columns: 1.22fr 0.95fr;
       align-items: center;
       gap: 44px;
     }
@@ -329,7 +316,7 @@
       font-size: 21px;
       line-height: 1.55;
       color: var(--ink-body);
-      max-width: 720px;
+      max-width: 740px;
     }
 
     .cover-agenda {
@@ -338,7 +325,7 @@
       gap: 32px;
       padding-top: 24px;
       border-top: 1.5px solid var(--line-strong);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .agenda-card {
@@ -351,9 +338,7 @@
       transition: background-color 0.18s ease;
     }
 
-    .agenda-card:hover {
-      background: var(--surface);
-    }
+    .agenda-card:hover { background: var(--surface); }
 
     .agenda-num {
       font-family: var(--font-mono);
@@ -370,24 +355,12 @@
       color: var(--ink);
     }
 
-    .cover-node rect {
-      transition: stroke 0.35s ease, fill 0.35s ease, stroke-width 0.35s ease;
-    }
-
-    .cover-node.lit rect {
-      fill: var(--embodied-soft);
-      stroke: var(--embodied);
-      stroke-width: 2.5;
-    }
-
-    .cover-node.lit.trad-node rect {
-      fill: var(--trad-soft);
-      stroke: var(--trad);
-      stroke-width: 2.5;
-    }
+    .cover-node rect { transition: stroke 0.35s ease, fill 0.35s ease, stroke-width 0.35s ease; }
+    .cover-node.lit rect { fill: var(--embodied-soft); stroke: var(--embodied); stroke-width: 2.5; }
+    .cover-node.lit.trad-node rect { fill: var(--trad-soft); stroke: var(--trad); stroke-width: 2.5; }
 
     /* ==========================================================================
-       6. SLIDE 2: TIMELINE + MORPHOLOGY EVOLUTION (WITH REAL F1 URDF)
+       6. SLIDE 2: TIMELINE + MORPHOLOGY EVOLUTION
        ========================================================================== */
     .timeline-axis {
       display: grid;
@@ -405,28 +378,10 @@
       border-bottom: 2px solid var(--line-strong);
     }
 
-    .era-head.current-focus {
-      border-bottom-color: var(--embodied);
-    }
-
-    .era-title {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--ink);
-    }
-
-    .era-mode {
-      font-size: 14.5px;
-      font-weight: 600;
-      color: var(--ink-body);
-    }
-
-    .axis-arrow {
-      text-align: center;
-      color: var(--ink-muted);
-      font-size: 22px;
-      font-weight: 700;
-    }
+    .era-head.current-focus { border-bottom-color: var(--embodied); }
+    .era-title { font-size: 24px; font-weight: 800; color: var(--ink); }
+    .era-mode { font-size: 14.5px; font-weight: 600; color: var(--ink-body); }
+    .axis-arrow { text-align: center; color: var(--ink-muted); font-size: 22px; font-weight: 700; }
 
     .stage-grid {
       flex: 1;
@@ -434,14 +389,10 @@
       grid-template-columns: 1fr 44px 1fr 44px 1fr;
       align-items: stretch;
       min-height: 0;
+      padding-bottom: 8px;
     }
 
-    .stage-col {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      min-height: 0;
-    }
+    .stage-col { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
 
     .ratio-box {
       background: var(--surface);
@@ -457,12 +408,7 @@
       margin-bottom: 8px;
     }
 
-    .ratio-main {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--ink-body);
-    }
-
+    .ratio-main { font-size: 15px; font-weight: 700; color: var(--ink-body); }
     .ratio-main strong {
       font-family: var(--font-mono);
       font-size: 40px;
@@ -472,11 +418,7 @@
       margin-left: 6px;
     }
 
-    .ratio-sub {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: var(--trad);
-    }
+    .ratio-sub { font-size: 13.5px; font-weight: 700; color: var(--trad); }
 
     .stacked-bar {
       width: 100%;
@@ -503,9 +445,7 @@
     .bar-embodied { background: var(--embodied); }
 
     .slide:not(.visited) .bar-trad,
-    .slide:not(.visited) .bar-embodied {
-      width: 0% !important;
-    }
+    .slide:not(.visited) .bar-embodied { width: 0% !important; }
 
     .robot-card {
       flex: 1;
@@ -521,87 +461,32 @@
       transition: opacity 0.55s ease, transform 0.55s ease;
     }
 
-    .slide:not(.visited) .robot-card {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-
+    .slide:not(.visited) .robot-card { opacity: 0; transform: translateY(14px); }
     .robot-card.delay-1 { transition-delay: 0.08s; }
     .robot-card.delay-2 { transition-delay: 0.22s; }
     .robot-card.delay-3 { transition-delay: 0.36s; }
-
     .robot-card.featured {
       border: 2px solid var(--embodied);
       background: linear-gradient(180deg, #FFFFFF 0%, #F5F9FE 100%);
     }
 
-    .robot-card-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 26px;
-    }
+    .robot-card-top { display: flex; align-items: center; justify-content: space-between; min-height: 26px; }
+    .stage-tag { font-size: 12.5px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.05em; }
+    .f1-pill { background: var(--embodied); color: #FFFFFF; font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 4px; }
 
-    .stage-tag {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--ink-muted);
-      letter-spacing: 0.05em;
-    }
-
-    .f1-pill {
-      background: var(--embodied);
-      color: #FFFFFF;
-      font-size: 12.5px;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 4px;
-    }
-
-    .robot-visual {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 0;
-    }
-
-    .robot-visual img {
-      max-width: 100%;
-      max-height: 280px;
-      object-fit: contain;
-      display: block;
-    }
-
-    .robot-name {
-      font-size: 25px;
-      font-weight: 800;
-      color: var(--ink);
-      margin-top: 4px;
-    }
-
-    .robot-desc {
-      font-size: 15px;
-      line-height: 1.45;
-      color: var(--ink-body);
-      margin-top: 4px;
-    }
-
-    .col-chevron {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--line-strong);
-    }
+    .robot-visual { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 6px 0; }
+    .robot-visual img { max-width: 100%; max-height: 290px; object-fit: contain; display: block; }
+    .robot-name { font-size: 25px; font-weight: 800; color: var(--ink); margin-top: 4px; }
+    .robot-desc { font-size: 15px; line-height: 1.45; color: var(--ink-body); margin-top: 4px; }
+    .col-chevron { display: flex; align-items: center; justify-content: center; color: var(--line-strong); }
 
     /* ==========================================================================
-       7. SLIDE 3: MACRO CLOSED-LOOP (HTML VISUAL CARDS + CLEAR TYPOGRAPHY)
+       7. SLIDE 3: MACRO CLOSED-LOOP (传统确定性与安全兜底 × 具身泛化)
        ========================================================================== */
     .macro-canvas {
       position: relative;
-      width: 1448px;
-      height: 516px;
+      width: 1452px;
+      height: 536px;
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -617,56 +502,50 @@
       z-index: 1;
     }
 
-    .macro-link {
-      opacity: 0.38;
-      transition: opacity 0.3s ease, stroke-width 0.3s ease;
-    }
-
-    .macro-link.is-active {
-      opacity: 1;
-      stroke-width: 3.4;
-    }
+    .macro-link { opacity: 0.36; transition: opacity 0.3s ease, stroke-width 0.3s ease; }
+    .macro-link.is-active { opacity: 1; stroke-width: 3.4; }
 
     .rail-pill {
       position: absolute;
       z-index: 3;
-      padding: 5px 16px;
+      padding: 6px 18px;
       border-radius: 999px;
       font-size: 13.5px;
       font-weight: 700;
       white-space: nowrap;
     }
 
-    .rail-pill.blue {
-      background: var(--embodied-soft);
-      border: 1px solid var(--embodied-line);
-      color: var(--embodied);
-    }
-
-    .rail-pill.trad {
-      background: var(--trad-soft);
-      border: 1px solid var(--trad-line);
-      color: var(--trad);
-    }
+    .rail-pill.blue { background: var(--embodied-soft); border: 1px solid var(--embodied-line); color: var(--embodied); }
+    .rail-pill.trad { background: var(--trad-soft); border: 1px solid var(--trad-line); color: var(--trad); }
 
     .m-card {
       position: absolute;
       top: 106px;
       width: 248px;
-      height: 304px;
+      height: 322px;
       background: #FFFFFF;
       border: 2px solid var(--line-strong);
       border-radius: 10px;
-      padding: 16px 16px 14px;
+      padding: 15px 16px 14px;
       display: flex;
       flex-direction: column;
       z-index: 2;
+      overflow: hidden;
       transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
     }
 
-    .m-card.embodied-card { border-top: 5px solid var(--embodied); }
-    .m-card.trad-card { border-top: 5px solid var(--trad); }
-    .m-card.neutral-card { border-top: 5px solid #64748B; }
+    .m-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 5px;
+    }
+
+    .m-card.embodied-card::before { background: var(--embodied); }
+    .m-card.trad-card::before { background: var(--trad); }
+    .m-card.hybrid-card::before { background: linear-gradient(90deg, var(--trad) 0%, var(--trad) 50%, var(--embodied) 50%, var(--embodied) 100%); }
 
     .m-card.is-active {
       transform: translateY(-4px);
@@ -679,18 +558,23 @@
       box-shadow: 0 12px 26px rgba(154, 99, 46, 0.16);
     }
 
+    .m-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
     .m-step {
       font-family: var(--font-mono);
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.08em;
       color: var(--ink-muted);
-      margin-bottom: 4px;
     }
 
-    /* Big unmistakable title vs small clean body! */
     .m-title {
-      font-size: 27px;
+      font-size: 26px;
       line-height: 1.18;
       font-weight: 800;
       color: var(--ink);
@@ -699,7 +583,7 @@
 
     .m-thumb {
       width: 100%;
-      height: 124px;
+      height: 126px;
       border-radius: 6px;
       overflow: hidden;
       background: #F1F5F9;
@@ -710,27 +594,21 @@
       justify-content: center;
     }
 
-    .m-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+    .m-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .m-role {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--embodied);
-      margin-bottom: 3px;
+      font-size: 13.5px;
+      font-weight: 800;
+      margin-bottom: 4px;
     }
 
-    .m-card.trad-card .m-role {
-      color: var(--trad);
-    }
+    .m-role.r-trad { color: var(--trad); }
+    .m-role.r-emb { color: var(--embodied); }
+    .m-role.r-mix { color: var(--ink); }
 
     .m-desc {
       font-size: 13.5px;
-      line-height: 1.4;
+      line-height: 1.42;
       font-weight: 400;
       color: var(--ink-body);
     }
@@ -750,29 +628,18 @@
       padding: 14px 20px;
     }
 
-    .takeaway-item.safe-accent { border-left-color: var(--safe); }
     .takeaway-item.trad-accent { border-left-color: var(--trad); }
-
-    .takeaway-item h3 {
-      font-size: 21px;
-      font-weight: 800;
-      color: var(--ink);
-      margin-bottom: 3px;
-    }
-
-    .takeaway-item p {
-      font-size: 14.5px;
-      color: var(--ink-body);
-    }
+    .takeaway-item.safe-accent { border-left-color: var(--safe); }
+    .takeaway-item h3 { font-size: 21px; font-weight: 800; color: var(--ink); margin-bottom: 3px; }
+    .takeaway-item p { font-size: 14.5px; color: var(--ink-body); }
 
     /* ==========================================================================
-       8. SLIDE 4: 3-SWIMLANE COMPONENTS — RICH VISUALS, PROVENANCE PILLS &
-          SHARP TYPOGRAPHIC HIERARCHY (24px Bold Title vs 13px Regular Body)
+       8. SLIDE 4: 3-SWIMLANE COMPONENTS (ZERO OVERFLOW, CLEAN SAFE BOX, 1-LINE NOTES)
        ========================================================================== */
     .arch-board {
       position: relative;
-      width: 1448px;
-      height: 616px;
+      width: 1452px;
+      height: 604px;
       flex-shrink: 0;
     }
 
@@ -785,98 +652,51 @@
       z-index: 2;
     }
 
-    @keyframes dashFast {
-      from { stroke-dashoffset: 20; }
-      to { stroke-dashoffset: 0; }
-    }
+    @keyframes dashFast { from { stroke-dashoffset: 20; } to { stroke-dashoffset: 0; } }
+    @keyframes dashSlow { from { stroke-dashoffset: 24; } to { stroke-dashoffset: 0; } }
+    .anim-fast { stroke-dasharray: 6 4; animation: dashFast 0.85s linear infinite; }
+    .anim-slow { stroke-dasharray: 6 6; animation: dashSlow 2.4s linear infinite; }
 
-    @keyframes dashSlow {
-      from { stroke-dashoffset: 24; }
-      to { stroke-dashoffset: 0; }
-    }
-
-    .anim-fast {
-      stroke-dasharray: 6 4;
-      animation: dashFast 0.85s linear infinite;
-    }
-
-    .anim-slow {
-      stroke-dasharray: 6 6;
-      animation: dashSlow 2.4s linear infinite;
-    }
-
-    /* Swimlane bands */
     .lane-band {
       position: absolute;
       left: 0;
-      width: 1448px;
+      width: 1452px;
       border-radius: 8px;
       display: flex;
       overflow: hidden;
       z-index: 1;
     }
 
-    .lane-slow {
-      top: 0;
-      height: 148px;
-      background: #F6FAFE;
-      border: 1px solid #D4E2F2;
-    }
-
-    .lane-fast {
-      top: 168px;
-      height: 280px;
-      background: #FFFFFF;
-      border: 2px solid var(--embodied);
-    }
-
-    .lane-exp {
-      top: 468px;
-      height: 148px;
-      background: #F7F9FC;
-      border: 1px solid #DCE2EC;
-    }
+    .lane-slow { top: 0; height: 144px; background: #F5FAFF; border: 1px solid #CFE0F2; }
+    .lane-fast { top: 162px; height: 280px; background: #FFFFFF; border: 2px solid var(--trad); }
+    .lane-exp { top: 460px; height: 144px; background: #F7F9FC; border: 1px solid #DCE2EC; }
 
     .lane-side {
       width: 142px;
-      padding: 18px 16px;
+      padding: 16px 14px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       flex-shrink: 0;
     }
 
-    .lane-slow .lane-side { background: #E7F0FA; }
-    .lane-fast .lane-side { background: var(--embodied); color: #FFFFFF; }
+    .lane-slow .lane-side { background: #E5F0FB; }
+    .lane-fast .lane-side { background: var(--trad); color: #FFFFFF; }
     .lane-exp .lane-side { background: #EAEFF6; }
 
-    .lane-name {
-      font-size: 25px;
-      font-weight: 800;
-      line-height: 1.15;
-      color: var(--ink);
-    }
-
+    .lane-name { font-size: 24px; font-weight: 800; line-height: 1.15; color: var(--ink); }
     .lane-slow .lane-name { color: var(--embodied); }
     .lane-fast .lane-name { color: #FFFFFF; }
+    .lane-caption { font-size: 12.5px; font-weight: 600; margin-top: 6px; line-height: 1.38; color: var(--ink-body); }
+    .lane-fast .lane-caption { color: #FCECD9; }
 
-    .lane-caption {
-      font-size: 12.5px;
-      font-weight: 600;
-      margin-top: 6px;
-      color: var(--ink-body);
-    }
-
-    .lane-fast .lane-caption { color: #D7E8FA; }
-
-    /* Component Cards inside Swimlanes */
     .c-card {
       position: absolute;
       z-index: 3;
       background: #FFFFFF;
       border-radius: 8px;
       border: 1.5px solid var(--line-strong);
-      padding: 11px 12px 10px;
+      padding: 10px 12px 9px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -884,14 +704,8 @@
 
     .c-card.embodied-c { border-color: var(--embodied); border-top-width: 4px; }
     .c-card.trad-c { border-color: var(--trad); border-top-width: 4px; }
-    .c-card.dashed-c { border: 1.8px dashed var(--embodied); background: #FFFFFF; }
-    .c-card.safe-c {
-      background: var(--safe);
-      border: 2px solid var(--safe);
-      color: #FFFFFF;
-    }
+    .c-card.safe-c { background: var(--safe); border: 2px solid var(--safe); color: #FFFFFF; }
 
-    /* HUGE visual jump between Card Title (23px ExtraBold) and Body (12.5px Regular)! */
     .c-title {
       font-size: 23px;
       line-height: 1.15;
@@ -900,9 +714,7 @@
       color: var(--ink);
     }
 
-    .c-card.safe-c .c-title {
-      color: #FFFFFF;
-    }
+    .c-card.safe-c .c-title { color: #FFFFFF; }
 
     .c-vis {
       width: 100%;
@@ -914,40 +726,62 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 6px 0;
+      margin: 5px 0;
     }
 
-    .c-card.safe-c .c-vis {
-      background: #222F42;
-      border-color: #364760;
-    }
+    .c-vis img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .c-vis img {
+    /* Clean HTML Safety Kernel Inner Shield Box (ZERO clipping!) */
+    .safe-gate-box {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      height: 82px;
+      margin: 5px 0;
+      border-radius: 6px;
+      background: #1E2B3E;
+      border: 1.5px solid #38BDF8;
+      padding: 10px 11px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .safe-gate-text strong {
       display: block;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1.25;
+      margin-bottom: 3px;
+    }
+
+    .safe-gate-text span {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94A3B8;
+      line-height: 1.2;
+      white-space: nowrap;
     }
 
     .c-note {
-      font-size: 12.5px;
-      line-height: 1.32;
+      font-size: 12px;
+      line-height: 1.25;
       font-weight: 400;
       color: var(--ink-body);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .c-card.safe-c .c-note {
-      color: #CBD5E1;
-    }
+    .c-card.safe-c .c-note { color: #CBD5E1; }
 
-    /* Horizontal Cards in Lane 1 & Lane 3 (Image/Icon Left + Title/Badges/Note Right) */
     .h-card {
       position: absolute;
       z-index: 3;
       background: #FFFFFF;
       border-radius: 8px;
       border: 1.5px solid var(--line-strong);
-      padding: 12px 16px;
+      padding: 11px 16px;
       display: flex;
       align-items: center;
       gap: 14px;
@@ -957,8 +791,8 @@
     .h-card.embodied-c { border: 1.8px solid var(--embodied); }
 
     .h-thumb {
-      width: 120px;
-      height: 84px;
+      width: 116px;
+      height: 82px;
       border-radius: 6px;
       overflow: hidden;
       background: #F1F5F9;
@@ -969,48 +803,43 @@
       justify-content: center;
     }
 
-    .h-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+    .h-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .h-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
 
-    .h-main {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    /* Tech Direction Summary Bar below Slide 4 Board */
+    /* Fixed Bottom Technology Direction Strip — Proportional Grid, Zero Overflow! */
     .tech-direction-bar {
-      margin-top: 12px;
+      margin-top: 14px;
+      width: 1452px;
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 7px;
-      padding: 10px 18px;
+      border-radius: 8px;
+      padding: 12px 20px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1.65fr 0.95fr 1.15fr;
       gap: 20px;
-      font-size: 13px;
+      align-items: center;
     }
 
     .td-col {
+      min-width: 0;
       display: flex;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      gap: 3px;
+      padding-left: 12px;
+      border-left: 3px solid var(--embodied);
     }
+
+    .td-col.td-trad { border-left-color: var(--trad); }
+    .td-col.td-safe { border-left-color: var(--safe); }
 
     .td-col strong {
       font-size: 13.5px;
       font-weight: 800;
       color: var(--ink);
-      white-space: nowrap;
     }
 
     .td-col span {
+      font-size: 12.5px;
       color: var(--ink-body);
       white-space: nowrap;
       overflow: hidden;
@@ -1018,41 +847,103 @@
     }
 
     /* ==========================================================================
-       9. SLIDE 5: 9-GRID WORKCELL SCENE & REAL F1 URDF SHOWCASE
+       9. SLIDES 5–8: 4-PAGE DYNAMIC CASE WALKTHROUGH (framework.html STYLE)
        ========================================================================== */
-    .case-layout {
-      flex: 1;
+    .case-stepper {
       display: grid;
-      grid-template-columns: 1.26fr 1fr;
-      gap: 26px;
-      min-height: 0;
-    }
-
-    .case-left {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      min-height: 0;
-    }
-
-    .scene-photos {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      height: 238px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
       flex-shrink: 0;
     }
 
-    .photo-frame {
+    .step-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 7px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .step-pill:hover { border-color: var(--embodied-line); }
+
+    .step-pill .s-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 800;
+      background: #E2E8F0;
+      color: var(--ink-body);
+      flex-shrink: 0;
+    }
+
+    .step-pill .s-txt {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink-muted);
+    }
+
+    .step-pill.done {
+      background: var(--ok-soft);
+      border-color: var(--ok-line);
+    }
+
+    .step-pill.done .s-num { background: var(--ok); color: #FFFFFF; }
+    .step-pill.done .s-txt { color: var(--ok); }
+
+    .step-pill.now {
+      background: var(--embodied);
+      border-color: var(--embodied);
+    }
+
+    .step-pill.now .s-num { background: #FFFFFF; color: var(--embodied); }
+    .step-pill.now .s-txt { color: #FFFFFF; }
+
+    /* Two-column walkthrough stage */
+    .walk-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 560px 1fr;
+      gap: 26px;
+      min-height: 0;
+      padding-bottom: 8px;
+    }
+
+    .walk-left {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .stage-visual-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      height: 244px;
+      flex-shrink: 0;
+    }
+
+    .v-box {
       border: 1px solid var(--line);
       border-radius: 8px;
       overflow: hidden;
-      background: var(--surface);
+      background: #FFFFFF;
       display: flex;
       flex-direction: column;
     }
 
-    .photo-frame img {
+    .v-box img {
       width: 100%;
       flex: 1;
       min-height: 0;
@@ -1060,39 +951,40 @@
       display: block;
     }
 
-    .photo-cap {
-      padding: 8px 14px;
-      font-size: 13.5px;
+    .v-cap {
+      padding: 7px 12px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--ink);
-      background: var(--bg);
+      background: var(--surface);
       border-top: 1px solid var(--line);
     }
 
-    .workcell-loop-box {
+    /* Live 9-Grid State Panel inside Left Column */
+    .rack-state-panel {
       flex: 1;
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 16px 20px;
       display: grid;
-      grid-template-columns: 184px 1fr;
-      gap: 22px;
+      grid-template-columns: 176px 1fr;
+      gap: 20px;
       align-items: center;
       min-height: 0;
     }
 
     .rack-grid {
-      width: 172px;
-      height: 172px;
-      background: #232933;
-      border: 2px solid #161B22;
+      width: 170px;
+      height: 170px;
+      background: #1E2530;
+      border: 2px solid #0F172A;
       border-radius: 6px;
-      padding: 7px;
+      padding: 6px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
-      gap: 6px;
+      gap: 5px;
     }
 
     .rack-cell {
@@ -1102,253 +994,176 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding: 5px;
-      transition: background-color 0.25s ease, border-color 0.25s ease;
+      padding: 4px;
+      transition: all 0.25s ease;
     }
 
     .rack-cell .idx {
       position: absolute;
-      top: 3px;
-      left: 5px;
+      top: 2px;
+      left: 4px;
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 700;
     }
 
-    .rack-cell.stocked { background: #353D4B; border: 1px solid #485264; }
-    .rack-cell.stocked .idx { color: #B8C0CC; }
-    .rack-cell.cleared { background: #ECEFF4; border: 1px solid #D5DCE6; }
-    .rack-cell.cleared .idx { color: #8A94A4; }
-    .rack-cell.active-slow { background: var(--trad-soft); border: 2px solid var(--trad); }
-    .rack-cell.active-slow .idx { color: var(--trad); }
-    .rack-cell.active-fast { background: var(--embodied-soft); border: 2px solid var(--embodied); }
-    .rack-cell.active-fast .idx { color: var(--embodied); }
+    .rack-cell.stocked { background: #333C4B; border: 1px solid #485366; }
+    .rack-cell.stocked .idx { color: #B6C0CE; }
+    .rack-cell.cleared { background: #ECFDF3; border: 1px solid #86EFAC; }
+    .rack-cell.cleared .idx { color: #166534; }
+    .rack-cell.active-emb { background: var(--embodied-soft); border: 2px solid var(--embodied); }
+    .rack-cell.active-emb .idx { color: var(--embodied); }
+    .rack-cell.active-trad { background: var(--trad-soft); border: 2px solid var(--trad); }
+    .rack-cell.active-trad .idx { color: var(--trad); }
 
-    .foam-sheets {
-      width: 82%;
+    .foam-sheets { width: 82%; display: flex; flex-direction: column; gap: 3px; margin-bottom: 2px; }
+    .foam-sheets i { display: block; height: 4px; border-radius: 1px; background: #FFFFFF; border: 0.5px solid #CBD2DF; }
+    .done-mark { margin: auto; font-size: 12px; font-weight: 800; color: #166534; }
+
+    .rack-meta h4 { font-size: 20px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+    .rack-meta p { font-size: 14px; line-height: 1.5; color: var(--ink-body); margin-bottom: 10px; }
+
+    .state-kv {
       display: flex;
       flex-direction: column;
-      gap: 3px;
-      margin-bottom: 2px;
+      gap: 6px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line-strong);
+      font-size: 13px;
     }
 
-    .foam-sheets i {
-      display: block;
-      height: 4px;
-      border-radius: 1px;
+    .state-kv div { display: flex; align-items: center; justify-content: space-between; }
+    .state-kv span { color: var(--ink-muted); font-weight: 600; }
+    .state-kv b { color: var(--ink); font-family: var(--font-mono); font-weight: 700; }
+
+    /* Right Column: Execution Chain + Fault Resolution Table */
+    .walk-right {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .panel-box {
       background: #FFFFFF;
-      border: 0.5px solid #CBD2DF;
-    }
-
-    .done-mark {
-      margin: auto;
-      font-size: 12px;
-      font-weight: 700;
-      color: #6B7688;
-    }
-
-    .loop-steps {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px 18px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      height: 100%;
       gap: 10px;
     }
 
-    .loop-head {
+    .panel-box.grow { flex: 1; min-height: 0; }
+
+    .panel-title {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding-bottom: 8px;
-      border-bottom: 1px solid var(--line-strong);
+      border-bottom: 1.5px solid var(--line);
     }
 
-    .loop-head strong {
-      font-size: 18px;
+    .panel-title h3 {
+      font-size: 20px;
       font-weight: 800;
       color: var(--ink);
     }
 
-    .loop-status {
-      font-family: var(--font-mono);
-      font-size: 13.5px;
+    .panel-title span {
+      font-size: 12.5px;
       font-weight: 700;
-      color: var(--embodied);
+      color: var(--ink-muted);
     }
 
-    .loop-cards {
+    .exec-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .exec-row {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    .loop-step-card {
-      background: var(--bg);
-      border: 1px solid var(--line);
+      grid-template-columns: 158px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 8px 10px;
+      background: var(--surface);
       border-radius: 6px;
-      padding: 10px 14px;
     }
 
-    .loop-step-card b {
-      display: block;
-      font-size: 16px;
-      font-weight: 800;
+    .exec-row p {
+      font-size: 14.5px;
+      line-height: 1.45;
       color: var(--ink);
-      margin-bottom: 2px;
     }
 
-    .loop-step-card b span {
-      color: var(--embodied);
-      margin-right: 5px;
+    .exec-row p strong { font-weight: 800; color: var(--ink); }
+
+    /* Fault & Recovery Table (inspired by harness/framework.html Section 4) */
+    .fault-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.8px;
+      line-height: 1.42;
     }
 
-    .loop-step-card p {
-      font-size: 13px;
+    .fault-table th {
+      text-align: left;
+      padding: 7px 10px;
+      background: var(--surface);
       color: var(--ink-body);
-    }
-
-    .path-bridge {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      flex-shrink: 0;
-    }
-
-    .bridge-card {
-      border-radius: 8px;
-      padding: 13px 18px;
-      border: 1px solid var(--line);
-    }
-
-    .bridge-card.slow {
-      background: var(--trad-soft);
-      border-left: 4px solid var(--trad);
-    }
-
-    .bridge-card.fast {
-      background: var(--embodied-soft);
-      border-left: 4px solid var(--embodied);
-    }
-
-    .bridge-card strong {
-      display: block;
-      font-size: 18px;
       font-weight: 800;
-      margin-bottom: 3px;
+      font-size: 12.5px;
+      border-bottom: 1.5px solid var(--line-strong);
     }
 
-    .bridge-card.slow strong { color: var(--trad); }
-    .bridge-card.fast strong { color: var(--embodied); }
-
-    .bridge-card span {
-      font-size: 14px;
-      color: var(--ink-body);
+    .fault-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      color: var(--ink);
     }
 
-    .case-right {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      min-height: 0;
-    }
+    .fault-table tr:last-child td { border-bottom: none; }
+    .fault-table td.issue { font-weight: 700; color: var(--ink); width: 28%; }
+    .fault-table td.owner { width: 19%; }
 
-    .f1-hero-card {
-      border: 2px solid var(--embodied);
-      border-radius: 8px;
-      background: #FFFFFF;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      height: 304px;
-      flex-shrink: 0;
-    }
-
-    .f1-hero-visual {
+    /* Convergence Summary Cards on Slide 8 */
+    .conv-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
       flex: 1;
-      min-height: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 20px;
-      background: #FFFFFF;
     }
 
-    .f1-hero-visual img {
-      max-height: 100%;
-      max-width: 100%;
-      object-fit: contain;
-      display: block;
-    }
-
-    .f1-hero-bar {
-      padding: 10px 18px;
-      background: var(--embodied);
-      color: #FFFFFF;
+    .conv-card {
+      border-radius: 7px;
+      padding: 13px 15px;
+      border: 1px solid var(--line);
       display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: space-between;
     }
 
-    .f1-hero-bar strong {
-      font-size: 18px;
+    .conv-card.c-emb { background: var(--embodied-soft); border-top: 3.5px solid var(--embodied); }
+    .conv-card.c-trad { background: var(--trad-soft); border-top: 3.5px solid var(--trad); }
+    .conv-card.c-safe { background: var(--surface); border-top: 3.5px solid var(--safe); }
+
+    .conv-card h4 { font-size: 18px; font-weight: 800; color: var(--ink); margin-bottom: 5px; }
+    .conv-card p { font-size: 13.5px; line-height: 1.45; color: var(--ink-body); }
+    .conv-card .metric {
+      margin-top: 8px;
+      font-family: var(--font-mono);
+      font-size: 13px;
       font-weight: 800;
-    }
-
-    .f1-hero-bar span {
-      font-size: 12.5px;
-      font-weight: 600;
-      opacity: 0.92;
-    }
-
-    .spec-card {
-      flex: 1;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .spec-table {
-      width: 100%;
-      height: 100%;
-      border-collapse: collapse;
-      font-size: 15px;
-    }
-
-    .spec-table tr + tr {
-      border-top: 1px solid var(--line);
-    }
-
-    .spec-table th {
-      width: 132px;
-      padding: 10px 16px;
-      text-align: left;
-      font-weight: 700;
-      color: var(--ink-body);
-      background: var(--surface);
-      white-space: nowrap;
-    }
-
-    .spec-table td {
-      padding: 10px 18px;
       color: var(--ink);
-      font-weight: 500;
-    }
-
-    .spec-table td.hl {
-      color: var(--embodied);
-      font-weight: 800;
     }
 
     /* ==========================================================================
        10. EXACT 16:9 LANDSCAPE PDF PRINT EXPORT (Ctrl/⌘ + P)
        ========================================================================== */
-    @page {
-      size: 1600px 900px;
-      margin: 0;
-    }
+    @page { size: 1600px 900px; margin: 0; }
 
     @media print {
       * {
@@ -1358,17 +1173,8 @@
         transition: none !important;
       }
 
-      html, body {
-        width: 1600px !important;
-        height: auto !important;
-        overflow: visible !important;
-        background: #FFFFFF !important;
-      }
-
-      .progress-track, .no-print {
-        display: none !important;
-      }
-
+      html, body { width: 1600px !important; height: auto !important; overflow: visible !important; background: #FFFFFF !important; }
+      .progress-track { display: none !important; }
       .viewport { position: static !important; overflow: visible !important; }
       .deck { position: static !important; transform: none !important; width: 1600px !important; height: auto !important; }
 
@@ -1383,11 +1189,7 @@
         break-after: page !important;
       }
 
-      .slide:last-child {
-        page-break-after: auto !important;
-        break-after: auto !important;
-      }
-
+      .slide:last-child { page-break-after: auto !important; break-after: auto !important; }
       .slide:not(.visited) .robot-card { opacity: 1 !important; transform: none !important; }
       .bar-trad.w80 { width: 80% !important; }
       .bar-embodied.w20 { width: 20% !important; }
@@ -1414,7 +1216,7 @@
               <span class="sub-accent">融合落地框架</span>
             </h1>
             <p class="cover-lead">
-              产线演进趋势、F1 Harness 双路径架构与九宫格上下料落地。
+              传统做确定性底座与安全兜底，具身解非结构化泛化难题——从产线演进、F1 Harness 架构到九宫格上下料全流程拆解。
             </p>
           </div>
 
@@ -1432,28 +1234,28 @@
               <circle cx="230" cy="210" r="136" fill="none" stroke="#E6EAF0" stroke-width="1.5" />
               <path d="M 278 83 A 136 136 0 0 1 357 162" fill="none" stroke="#1D568C" stroke-width="2.5" marker-end="url(#cvBlue)" />
               <path d="M 357 258 A 136 136 0 0 1 278 337" fill="none" stroke="#9A632E" stroke-width="2.5" marker-end="url(#cvTrad)" />
-              <path d="M 182 337 A 136 136 0 0 1 103 258" fill="none" stroke="#1D568C" stroke-width="2.5" marker-end="url(#cvBlue)" />
+              <path d="M 182 337 A 136 136 0 0 1 103 258" fill="none" stroke="#9A632E" stroke-width="2.5" marker-end="url(#cvTrad)" />
               <path d="M 103 162 A 136 136 0 0 1 182 83" fill="none" stroke="#1D568C" stroke-width="2.5" marker-end="url(#cvBlue)" />
 
-              <circle cx="230" cy="210" r="64" fill="#F6F8FB" stroke="#E2E7F0" stroke-width="1.2" />
-              <text x="230" y="204" text-anchor="middle" font-size="22" font-weight="800" fill="#0F172A">融合闭环</text>
-              <text x="230" y="230" text-anchor="middle" font-size="15" font-weight="700" fill="#1D568C">越用越快</text>
+              <circle cx="230" cy="210" r="66" fill="#F6F8FB" stroke="#E2E7F0" stroke-width="1.2" />
+              <text x="230" y="203" text-anchor="middle" font-size="21" font-weight="800" fill="#0F172A">确定兜底</text>
+              <text x="230" y="229" text-anchor="middle" font-size="16" font-weight="700" fill="#1D568C">具身泛化</text>
 
               <g class="cover-node lit" data-cnode="0" transform="translate(172, 48)">
                 <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#B3CEE8" stroke-width="1.8" />
-                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">状态感知</text>
+                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">开放感知</text>
               </g>
               <g class="cover-node" data-cnode="1" transform="translate(314, 185)">
                 <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#B3CEE8" stroke-width="1.8" />
-                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">双路决策</text>
+                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">混合编排</text>
               </g>
               <g class="cover-node trad-node" data-cnode="2" transform="translate(172, 322)">
                 <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#E2C6A8" stroke-width="1.8" />
-                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">安全执行</text>
+                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">安全兜底</text>
               </g>
-              <g class="cover-node" data-cnode="3" transform="translate(30, 185)">
-                <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#B3CEE8" stroke-width="1.8" />
-                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">经验沉淀</text>
+              <g class="cover-node trad-node" data-cnode="3" transform="translate(30, 185)">
+                <rect width="116" height="50" rx="8" fill="#FFFFFF" stroke="#E2C6A8" stroke-width="1.8" />
+                <text x="58" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#0F172A">经验固化</text>
               </g>
             </svg>
           </div>
@@ -1461,28 +1263,24 @@
 
         <nav class="cover-agenda" aria-label="汇报结构">
           <button type="button" class="agenda-card" data-jump="1">
-            <div class="agenda-num">PART 01</div>
-            <div class="agenda-name">落地趋势与三代本体演进</div>
+            <div class="agenda-num">PART 01 · P2</div>
+            <div class="agenda-name">产线占比演进与三代本体</div>
           </button>
           <button type="button" class="agenda-card" data-jump="2">
-            <div class="agenda-num">PART 02</div>
+            <div class="agenda-num">PART 02 · P3–P4</div>
             <div class="agenda-name">Harness 宏观闭环与三泳道组件</div>
           </button>
           <button type="button" class="agenda-card" data-jump="4">
-            <div class="agenda-num">PART 03</div>
-            <div class="agenda-name">九宫格上下料 · 自研 F1 实景</div>
+            <div class="agenda-num">PART 03 · P5–P8</div>
+            <div class="agenda-name">九宫格上下料 · 四步动态拆解</div>
           </button>
         </nav>
 
-        <footer class="slide-foot">
-          <span class="no-print">← → / 点击画面左右翻页　·　按 F 全屏放映　·　Ctrl/⌘+P 导出 PDF</span>
-          <span></span>
-          <span class="page-no">01 / 05</span>
-        </footer>
+        <span class="page-badge">01 / 08</span>
       </section>
 
       <!-- ====================================================================
-           SLIDE 2 (#2): 01 落地趋势与本体演进（使用 F1 真实 URDF）
+           SLIDE 2 (#2): 01 宏观趋势与本体演进
            ==================================================================== -->
       <section class="slide" data-index="1" aria-label="落地趋势与本体演进">
         <header class="slide-head">
@@ -1542,7 +1340,6 @@
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
           </div>
 
-          <!-- Stage 2: REAL F1 URDF FROM F1-4242 -->
           <div class="stage-col">
             <div class="ratio-box" style="border-color:var(--embodied-line);background:var(--embodied-soft);">
               <div class="ratio-numbers">
@@ -1596,38 +1393,35 @@
           </div>
         </div>
 
-        <footer class="slide-foot">
-          <span>轮式本体图为 F1-4242 真实 URDF（f1_wheel）三维渲染；占比为技术路线判断</span>
-          <span class="page-no">02 / 05</span>
-        </footer>
+        <span class="page-badge">02 / 08</span>
       </section>
 
       <!-- ====================================================================
-           SLIDE 3 (#3): 02 框架图 A · 宏观闭环（图文结合 + 大字号层级）
+           SLIDE 3 (#3): 02 框架图 A · 宏观闭环（传统做确定性底座与兜底，具身解泛化）
            ==================================================================== -->
       <section class="slide" data-index="2" aria-label="框架图 A 宏观闭环">
         <header class="slide-head">
           <div class="head-top">
             <div class="kicker">02 · 总体框架 · 宏观闭环</div>
             <div class="legend">
-              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身模块（适应与进化）</span>
-              <span class="legend-item"><i class="swatch swatch-trad"></i>传统模块（确定性与安全）</span>
+              <span class="legend-item"><i class="swatch swatch-trad"></i>传统自动化（确定性主干 · 安全兜底）</span>
+              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身智能（非结构化泛化 · 跨场景迁移）</span>
             </div>
           </div>
-          <h2 class="slide-title">具身负责<em>把事做成</em>，传统负责<em>不出事故</em></h2>
+          <h2 class="slide-title"><em class="trad">传统</em>做确定性底座与兜底，<em>具身</em>解泛化与长尾难题</h2>
         </header>
 
         <div class="macro-canvas">
-          <!-- Upper & Lower Return Labels -->
-          <div class="rail-pill blue" style="top:22px;left:764px;">
-            经验复用：验证达标后固化为冻结程序，同类场景 0 次大模型
+          <!-- Upper & Lower Return Pills -->
+          <div class="rail-pill blue" style="top:20px;left:722px;">
+            泛化沉淀为确定：具身跑通的新解法经验证固化为确定性程序，后续 0 次大模型
           </div>
-          <div class="rail-pill trad" style="bottom:20px;left:508px;">
-            实时物理闭环：每次动作后图像、关节反馈与夹爪读数回到感知
+          <div class="rail-pill trad" style="bottom:20px;left:500px;">
+            实时物理闭环：每次动作后图像、关节反馈与夹爪 CAN 读数回流感知
           </div>
 
-          <!-- Precision SVG Connectors Behind HTML Cards -->
-          <svg class="macro-svg-bg" viewBox="0 0 1448 516" aria-hidden="true">
+          <!-- Precision SVG Connectors -->
+          <svg class="macro-svg-bg" viewBox="0 0 1452 536" aria-hidden="true">
             <defs>
               <marker id="mB" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
                 <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#1D568C" />
@@ -1635,147 +1429,156 @@
               <marker id="mT" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
                 <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#9A632E" />
               </marker>
-              <marker id="mS" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
-                <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#475569" />
-              </marker>
             </defs>
 
-            <!-- Forward Links (y = 258) -->
-            <line id="mlink-0" class="macro-link is-active" x1="272" y1="258" x2="306" y2="258" stroke="#475569" stroke-width="2.4" marker-end="url(#mS)" />
-            <line id="mlink-1" class="macro-link" x1="560" y1="258" x2="594" y2="258" stroke="#1D568C" stroke-width="2.4" marker-end="url(#mB)" />
-            <line id="mlink-2" class="macro-link" x1="848" y1="258" x2="882" y2="258" stroke="#9A632E" stroke-width="2.4" marker-end="url(#mT)" />
-            <line id="mlink-3" class="macro-link" x1="1136" y1="258" x2="1170" y2="258" stroke="#1D568C" stroke-width="2.4" marker-end="url(#mB)" />
+            <!-- Forward Links (y = 267) -->
+            <line id="mlink-0" class="macro-link is-active" x1="274" y1="267" x2="308" y2="267" stroke="#9A632E" stroke-width="2.4" marker-end="url(#mT)" />
+            <line id="mlink-1" class="macro-link" x1="562" y1="267" x2="596" y2="267" stroke="#1D568C" stroke-width="2.4" marker-end="url(#mB)" />
+            <line id="mlink-2" class="macro-link" x1="850" y1="267" x2="884" y2="267" stroke="#9A632E" stroke-width="2.4" marker-end="url(#mT)" />
+            <line id="mlink-3" class="macro-link" x1="1138" y1="267" x2="1172" y2="267" stroke="#1D568C" stroke-width="2.4" marker-end="url(#mB)" />
 
-            <!-- Upper Experience Loop: Card 5 (x=1300, y=106) -> Card 3 (x=724, y=106) -->
-            <path id="mlink-4" class="macro-link" d="M 1300 106 L 1300 40 L 724 40 L 724 100" fill="none" stroke="#1D568C" stroke-width="2.4" marker-end="url(#mB)" />
+            <!-- Upper Experience Consolidation Loop: Card 5 -> Card 3 -->
+            <path id="mlink-4" class="macro-link" d="M 1302 106 L 1302 38 L 726 38 L 726 100" fill="none" stroke="#1D568C" stroke-width="2.4" marker-end="url(#mB)" />
 
-            <!-- Lower Physical Feedback Loop: Card 4 (x=1012, y=410) -> Card 2 (x=436, y=410) -->
-            <path id="mlink-fb" class="macro-link" d="M 1012 410 L 1012 478 L 436 478 L 436 416" fill="none" stroke="#9A632E" stroke-width="2.4" marker-end="url(#mT)" />
+            <!-- Lower Physical Feedback Loop: Card 4 -> Card 2 -->
+            <path id="mlink-fb" class="macro-link" d="M 1014 428 L 1014 496 L 438 496 L 438 434" fill="none" stroke="#9A632E" stroke-width="2.4" marker-end="url(#mT)" />
           </svg>
 
-          <!-- Card 1: 任务下达 (x = 24) -->
-          <article class="m-card neutral-card is-active" data-mnode="0" style="left:24px;">
-            <div class="m-step">STEP 01</div>
+          <!-- Card 1: 任务调度 (Traditional) -->
+          <article class="m-card trad-card is-active" data-mnode="0" style="left:26px;">
+            <div class="m-top-row">
+              <span class="m-step">STEP 01</span>
+              <span class="tag tag-trad">传统确定性</span>
+            </div>
             <h3 class="m-title">任务下达</h3>
             <div class="m-thumb">
               <img src="assets/f1-sim.jpg" alt="工位任务目标示意" />
             </div>
-            <div class="m-role" style="color:#475569;">传统产线工单接入</div>
-            <p class="m-desc">明确目标料架、放置区与清空判据</p>
+            <div class="m-role r-trad">产线工单与节拍约束</div>
+            <p class="m-desc">明确目标料架、放置区坐标与完工判据</p>
           </article>
 
-          <!-- Card 2: 状态感知 (x = 312) -->
-          <article class="m-card embodied-card" data-mnode="1" style="left:312px;">
-            <div class="m-step">STEP 02</div>
-            <h3 class="m-title">状态感知</h3>
+          <!-- Card 2: 开放感知 (Embodied Generalization) -->
+          <article class="m-card embodied-card" data-mnode="1" style="left:314px;">
+            <div class="m-top-row">
+              <span class="m-step">STEP 02</span>
+              <span class="tag tag-emb">具身泛化</span>
+            </div>
+            <h3 class="m-title">开放感知</h3>
             <div class="m-thumb">
               <img src="assets/arch-perception.webp" alt="F1 实景分割与位姿感知" />
             </div>
-            <div class="m-role">具身多模态感知</div>
-            <p class="m-desc">视觉分割定位 + 夹爪接触读数</p>
+            <div class="m-role r-emb">非结构化视觉与状态估计</div>
+            <p class="m-desc">解决来料歪斜、柔性形变与遮挡定位</p>
           </article>
 
-          <!-- Card 3: 决策编排 (x = 600) -->
-          <article class="m-card embodied-card" data-mnode="2" style="left:600px;">
-            <div class="m-step">STEP 03</div>
-            <h3 class="m-title">决策编排</h3>
+          <!-- Card 3: 混合决策编排 (Traditional Backbone + Embodied Generalization) -->
+          <article class="m-card hybrid-card" data-mnode="2" style="left:602px;">
+            <div class="m-top-row">
+              <span class="m-step">STEP 03</span>
+              <span class="tag tag-trad">确定主干</span>
+              <span class="tag tag-emb">具身泛化</span>
+            </div>
+            <h3 class="m-title">混合编排</h3>
             <div class="m-thumb" style="background:#0F172A;padding:10px;justify-content:flex-start;">
-              <div style="font-family:var(--font-mono);font-size:12px;line-height:1.55;color:#E2E8F0;text-align:left;">
-                <div style="color:#38BDF8;"># 冻结程序优先</div>
-                <div>if seen(scene):</div>
-                <div style="padding-left:12px;color:#4ADE80;">run_frozen_skill()</div>
-                <div>else: <span style="color:#FBBF24;">ask_astra()</span></div>
+              <div style="font-family:var(--font-mono);font-size:11.5px;line-height:1.58;color:#E2E8F0;text-align:left;">
+                <div style="color:#F59E0B;"># 传统程序保稳定与效率</div>
+                <div>if known(scene):</div>
+                <div style="padding-left:10px;color:#FCD34D;">run_frozen_prog()</div>
+                <div style="color:#38BDF8;">else: generalize_astra()</div>
               </div>
             </div>
-            <div class="m-role">程序优先 + 模型兜底</div>
-            <p class="m-desc">常规跑确定性程序，异常才问模型</p>
+            <div class="m-role r-mix">确定性程序为主 · 具身解长尾</div>
+            <p class="m-desc">常规跑传统程序，遇新场景由具身泛化破局</p>
           </article>
 
-          <!-- Card 4: 安全执行 (x = 888) -->
-          <article class="m-card trad-card" data-mnode="3" style="left:888px;">
-            <div class="m-step">STEP 04</div>
+          <!-- Card 4: 安全执行 (Traditional Fallback & Safety Gate) -->
+          <article class="m-card trad-card" data-mnode="3" style="left:890px;">
+            <div class="m-top-row">
+              <span class="m-step">STEP 04</span>
+              <span class="tag tag-safe">传统安全兜底</span>
+            </div>
             <h3 class="m-title">安全执行</h3>
             <div class="m-thumb" style="background:#FFFFFF;">
               <img src="assets/f1-urdf.webp" style="object-fit:contain;padding:4px;" alt="F1 URDF 安全运动控制" />
             </div>
-            <div class="m-role">传统规划 + 安全联锁</div>
-            <p class="m-desc">防撞限位复核后平滑驱动 F1 本体</p>
+            <div class="m-role r-trad">运动规划 + 唯一安全出口</div>
+            <p class="m-desc">传统内核硬兜底防撞限位，柔性段按需接 VLA</p>
           </article>
 
-          <!-- Card 5: 经验沉淀 (x = 1176) -->
-          <article class="m-card embodied-card" data-mnode="4" style="left:1176px;">
-            <div class="m-step">STEP 05</div>
-            <h3 class="m-title">经验沉淀</h3>
+          <!-- Card 5: 经验沉淀 (Embodied -> Traditional Consolidation) -->
+          <article class="m-card hybrid-card" data-mnode="4" style="left:1178px;">
+            <div class="m-top-row">
+              <span class="m-step">STEP 05</span>
+              <span class="tag tag-emb">泛化→确定</span>
+            </div>
+            <h3 class="m-title">经验固化</h3>
             <div class="m-thumb">
               <img src="assets/arch-console.webp" alt="F1-infra 运行时间线与评测" />
             </div>
-            <div class="m-role">具身验证与进化</div>
-            <p class="m-desc">记录回执、独立验证并晋升入库</p>
+            <div class="m-role r-emb">独立验证与程序沉淀</div>
+            <p class="m-desc">将具身跑通的新解法验证固化为确定性程序</p>
           </article>
         </div>
 
         <div class="takeaway-strip">
+          <div class="takeaway-item trad-accent">
+            <h3>传统负责确定与兜底</h3>
+            <p>冻结程序、几何规划与安全内核，守住节拍稳定与物理安全底线</p>
+          </div>
           <div class="takeaway-item">
-            <h3>大模型退居兜底</h3>
-            <p>成熟工序直接跑冻结程序，在线零思考延迟</p>
+            <h3>具身负责泛化与长尾</h3>
+            <p>视觉分割、柔性 VLA 与大模型规划，攻克来料变化、换型与异常</p>
           </div>
           <div class="takeaway-item safe-accent">
-            <h3>安全只有一个出口</h3>
-            <p>一切动作必须通过传统安全内核复核放行</p>
-          </div>
-          <div class="takeaway-item trad-accent">
-            <h3>具身与传统优势互补</h3>
-            <p>具身层处理非结构化变化，传统层保障可靠执行</p>
+            <h3>泛化持续沉淀为确定</h3>
+            <p>具身攻克的新场景经独立验证固化入库，兼顾泛化上限与工业可靠性</p>
           </div>
         </div>
 
-        <footer class="slide-foot">
-          <span>具身智能 × 传统自动化 · F1 Harness 宏观闭环</span>
-          <span class="page-no">03 / 05</span>
-        </footer>
+        <span class="page-badge">03 / 08</span>
       </section>
 
       <!-- ====================================================================
-           SLIDE 4 (#4): 02 框架图 B · 算法与组件（图文支撑 + 来源小标 + 清晰字号层级）
+           SLIDE 4 (#4): 02 框架图 B · 算法与组件（修复底栏错位、安全内核框裁切与单字换行）
            ==================================================================== -->
       <section class="slide" data-index="3" aria-label="框架图 B 算法与组件">
         <header class="slide-head">
           <div class="head-top">
             <div class="kicker">02 · 总体框架 · 算法与组件</div>
             <div class="legend">
-              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身智能组件</span>
-              <span class="legend-item"><i class="swatch swatch-trad"></i>传统规划与控制</span>
-              <span class="legend-item"><i class="swatch swatch-safe"></i>自研安全内核</span>
+              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身泛化组件</span>
+              <span class="legend-item"><i class="swatch swatch-trad"></i>传统规划与确定控制</span>
+              <span class="legend-item"><i class="swatch swatch-safe"></i>自研安全兜底内核</span>
             </div>
           </div>
-          <h2 class="slide-title">F1 Harness 三泳道：<em>前沿开源生态</em> × <em>自研安全底座</em></h2>
+          <h2 class="slide-title">F1 Harness 三泳道：<em>前沿开源泛化生态</em> × <em class="trad">自研确定安全底座</em></h2>
         </header>
 
         <div class="arch-board">
-          <!-- 3 Horizontal Swimlane Backdrops -->
           <div class="lane-band lane-slow">
             <div class="lane-side">
-              <div class="lane-name">慢路径</div>
-              <div class="lane-caption">新场景与异常兜底</div>
+              <div class="lane-name">泛化路径</div>
+              <div class="lane-caption">新场景与长尾攻关</div>
             </div>
           </div>
 
           <div class="lane-band lane-fast">
             <div class="lane-side">
-              <div class="lane-name">快路径</div>
-              <div class="lane-caption">在线闭环主干<br/>0 次大模型调用</div>
+              <div class="lane-name">主执行链</div>
+              <div class="lane-caption">传统确定主干<br/>安全硬性兜底</div>
             </div>
           </div>
 
           <div class="lane-band lane-exp">
             <div class="lane-side">
-              <div class="lane-name">经验路径</div>
-              <div class="lane-caption">记录 · 评测 · 晋升</div>
+              <div class="lane-name">经验转化</div>
+              <div class="lane-caption">泛化沉淀为确定</div>
             </div>
           </div>
 
           <!-- Precision Non-Intersecting SVG Connectors -->
-          <svg class="arch-svg-layer" viewBox="0 0 1448 616" aria-hidden="true">
+          <svg class="arch-svg-layer" viewBox="0 0 1452 604" aria-hidden="true">
             <defs>
               <marker id="aB" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                 <path d="M1,1.5 L8.5,5 L1,8.5 Z" fill="#1D568C" />
@@ -1788,60 +1591,58 @@
               </marker>
             </defs>
 
-            <!-- 1. Slow Path Escalation & Return -->
-            <line x1="436" y1="186" x2="436" y2="132" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
-            <text x="426" y="162" text-anchor="end" font-size="12" font-weight="700" fill="#1D568C">没见过 / 重试用尽</text>
+            <!-- 1. Generalization Path Escalation & Consolidation -->
+            <line x1="436" y1="180" x2="436" y2="128" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
+            <text x="426" y="156" text-anchor="end" font-size="12" font-weight="700" fill="#1D568C">新场景 / 本地重试用尽</text>
 
-            <line x1="802" y1="74" x2="852" y2="74" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
+            <line x1="804" y1="72" x2="854" y2="72" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
 
-            <path d="M 1030 128 L 1030 156 L 520 156 L 520 182" fill="none" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
-            <text x="775" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="#1D568C">独立验证通过 → 冻结写回程序库</text>
+            <path d="M 1036 124 L 1036 151 L 520 151 L 520 176" fill="none" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
+            <text x="778" y="145" text-anchor="middle" font-size="12" font-weight="700" fill="#1D568C">独立验证通过 → 固化为确定性程序</text>
 
-            <!-- 2. Fast Path Spine Connectors (y = 292) -->
-            <line x1="354" y1="292" x2="378" y2="292" stroke="#1D568C" stroke-width="2.6" class="anim-fast" marker-end="url(#aB)" />
-            <line x1="568" y1="292" x2="592" y2="292" stroke="#1D568C" stroke-width="2.6" class="anim-fast" marker-end="url(#aB)" />
-            <line x1="782" y1="292" x2="806" y2="292" stroke="#9A632E" stroke-width="2.6" class="anim-fast" marker-end="url(#aS)" />
-            <line x1="996" y1="292" x2="1020" y2="292" stroke="#151E2C" stroke-width="2.6" class="anim-fast" marker-end="url(#aT)" />
-            <line x1="1210" y1="292" x2="1234" y2="292" stroke="#9A632E" stroke-width="2.6" class="anim-fast" marker-end="url(#aT)" />
+            <!-- 2. Main Spine Connectors (y = 286) -->
+            <line x1="354" y1="286" x2="378" y2="286" stroke="#1D568C" stroke-width="2.6" class="anim-fast" marker-end="url(#aB)" />
+            <line x1="568" y1="286" x2="592" y2="286" stroke="#9A632E" stroke-width="2.6" class="anim-fast" marker-end="url(#aT)" />
+            <line x1="782" y1="286" x2="806" y2="286" stroke="#9A632E" stroke-width="2.6" class="anim-fast" marker-end="url(#aS)" />
+            <line x1="996" y1="286" x2="1020" y2="286" stroke="#151E2C" stroke-width="2.6" class="anim-fast" marker-end="url(#aT)" />
+            <line x1="1210" y1="286" x2="1234" y2="286" stroke="#9A632E" stroke-width="2.6" class="anim-fast" marker-end="url(#aT)" />
 
-            <!-- Fast Path Feedback Rail (inside bottom of Lane 2: x = 1304 -> 260, y = 428) -->
-            <path d="M 1304 398 L 1304 430 L 260 430 L 260 402" fill="none" stroke="#9A632E" stroke-width="2" class="anim-fast" marker-end="url(#aT)" />
-            <rect x="590" y="417" width="380" height="24" rx="12" fill="#FBF5EE" stroke="#E2C6A8" />
-            <text x="780" y="433" text-anchor="middle" font-size="12" font-weight="700" fill="#9A632E">
+            <!-- Real-time Feedback Rail inside Lane 2 -->
+            <path d="M 1304 392 L 1304 424 L 260 424 L 260 396" fill="none" stroke="#9A632E" stroke-width="2" class="anim-fast" marker-end="url(#aT)" />
+            <rect x="590" y="411" width="380" height="24" rx="12" fill="#FBF5EE" stroke="#E2C6A8" />
+            <text x="780" y="427" text-anchor="middle" font-size="12" font-weight="700" fill="#9A632E">
               实时物理反馈：图像、关节与夹爪 CAN 读数回流
             </text>
 
-            <!-- 3. Experience Path Receipt & Promotion (non-intersecting!) -->
-            <line x1="1384" y1="398" x2="1384" y2="484" stroke="#475569" stroke-width="2.2" class="anim-slow" marker-end="url(#aS)" />
-            <rect x="1348" y="446" width="72" height="22" rx="4" fill="#FFFFFF" stroke="#CBD5E1" />
-            <text x="1384" y="461" text-anchor="middle" font-size="11.5" font-weight="700" fill="#475569">运行回执</text>
+            <!-- 3. Experience Conversion Connectors -->
+            <line x1="1384" y1="392" x2="1384" y2="476" stroke="#475569" stroke-width="2.2" class="anim-slow" marker-end="url(#aS)" />
+            <rect x="1348" y="438" width="72" height="22" rx="4" fill="#FFFFFF" stroke="#CBD5E1" />
+            <text x="1384" y="453" text-anchor="middle" font-size="11.5" font-weight="700" fill="#475569">运行回执</text>
 
-            <line x1="976" y1="542" x2="928" y2="542" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
+            <line x1="976" y1="532" x2="928" y2="532" stroke="#1D568C" stroke-width="2.2" class="anim-slow" marker-end="url(#aB)" />
 
-            <line x1="476" y1="488" x2="476" y2="402" stroke="#1D568C" stroke-width="2.4" class="anim-slow" marker-end="url(#aB)" />
-            <rect x="424" y="446" width="104" height="22" rx="4" fill="#ECF4FC" stroke="#B3CEE8" />
-            <text x="476" y="461" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1D568C">晋升冻结复用</text>
+            <line x1="476" y1="480" x2="476" y2="396" stroke="#1D568C" stroke-width="2.4" class="anim-slow" marker-end="url(#aB)" />
+            <rect x="424" y="438" width="104" height="22" rx="4" fill="#ECF4FC" stroke="#B3CEE8" />
+            <text x="476" y="453" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1D568C">晋升冻结复用</text>
           </svg>
 
-          <!-- ==================== LANE 1 HTML CARDS ==================== -->
-          <!-- Slow Card 1: Astra -->
-          <div class="h-card dashed-c" style="left:382px;top:20px;width:420px;height:108px;">
+          <!-- ==================== LANE 1 CARDS ==================== -->
+          <div class="h-card dashed-c" style="left:382px;top:18px;width:422px;height:106px;">
             <div class="h-thumb" style="background:#0F172A;flex-direction:column;padding:8px;gap:4px;">
               <div style="font-family:var(--font-mono);font-size:10.5px;color:#94A3B8;width:100%;">IMG + LEDGER →</div>
-              <div style="font-family:var(--font-mono);font-size:11px;color:#38BDF8;font-weight:700;width:100%;">def recover():</div>
-              <div style="font-family:var(--font-mono);font-size:10.5px;color:#4ADE80;width:100%;">  reobserve()</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:#38BDF8;font-weight:700;width:100%;">def generalize():</div>
+              <div style="font-family:var(--font-mono);font-size:10.5px;color:#4ADE80;width:100%;">  replan_grasp()</div>
             </div>
             <div class="h-main">
-              <div class="c-title">大模型规划</div>
+              <div class="c-title">大模型泛化规划</div>
               <div class="badge-row">
                 <span class="src-pill"><b>OpenAI</b><span>GPT-6 Astra</span></span>
               </div>
-              <div class="c-note">仅在未知场景介入，输出新策略补丁</div>
+              <div class="c-note">仅在新场景或长尾异常介入，输出策略补丁</div>
             </div>
           </div>
 
-          <!-- Slow Card 2: Independent Verifier -->
-          <div class="h-card embodied-c" style="left:858px;top:20px;width:364px;height:108px;">
+          <div class="h-card embodied-c" style="left:860px;top:18px;width:366px;height:106px;">
             <div class="h-thumb" style="background:#ECF4FC;">
               <svg viewBox="0 0 110 74" width="104" height="70">
                 <rect x="10" y="14" width="90" height="46" rx="6" fill="#FFFFFF" stroke="#1D568C" stroke-width="1.8"/>
@@ -1854,15 +1655,14 @@
               <div class="badge-row">
                 <span class="src-pill"><b>NVIDIA</b><span>ASPIRE Verifier</span></span>
               </div>
-              <div class="c-note">真机复现达标后，才准许固化入库</div>
+              <div class="c-note">真机复现达标后，固化为确定性程序入库</div>
             </div>
           </div>
 
-          <!-- ==================== LANE 2 HTML CARDS (6 CORE MODULES) ==================== -->
-          <!-- 1. 状态感知 (x = 166, w = 188) -->
-          <div class="c-card embodied-c" style="left:166px;top:186px;width:188px;height:212px;">
+          <!-- ==================== LANE 2 CARDS (6 MODULES — 1-LINE NOTES, ZERO CLIPPING) ==================== -->
+          <div class="c-card embodied-c" style="left:166px;top:180px;width:188px;height:212px;">
             <div>
-              <div class="c-title">状态感知</div>
+              <div class="c-title">开放感知</div>
               <div class="badge-row" style="margin-top:5px;">
                 <span class="src-pill"><b>Meta</b><span>SAM 2</span></span>
               </div>
@@ -1873,10 +1673,9 @@
             <div class="c-note">RGB-D 分割定位 + CAN 判抓</div>
           </div>
 
-          <!-- 2. 程序库 (x = 380, w = 188) -->
-          <div class="c-card embodied-c" style="left:380px;top:186px;width:188px;height:212px;background:#F5FAFF;">
+          <div class="c-card trad-c" style="left:380px;top:180px;width:188px;height:212px;background:#FCF9F5;">
             <div>
-              <div class="c-title">程序库</div>
+              <div class="c-title">程序编排</div>
               <div class="badge-row" style="margin-top:5px;">
                 <span class="src-pill"><b>北大</b><span>PyRUA</span></span>
                 <span class="src-pill"><b>清华·无问</b><span>RPent</span></span>
@@ -1884,17 +1683,16 @@
             </div>
             <div class="c-vis" style="background:#0F172A;padding:8px;justify-content:flex-start;">
               <div style="font-family:var(--font-mono);font-size:10.5px;line-height:1.45;color:#E2E8F0;">
-                <div style="color:#4ADE80;">for cell in rack:</div>
+                <div style="color:#FCD34D;">for cell in rack:</div>
                 <div>  pose = f1.locate(cell)</div>
                 <div>  f1.grasp(pose)</div>
                 <div style="color:#38BDF8;">  f1.place_to_bag()</div>
               </div>
             </div>
-            <div class="c-note">跑冻结程序，编排技能与重试</div>
+            <div class="c-note">确定性主干 · 编排与重试</div>
           </div>
 
-          <!-- 3. 技能与规划 (x = 594, w = 188) -->
-          <div class="c-card trad-c" style="left:594px;top:186px;width:188px;height:212px;">
+          <div class="c-card trad-c" style="left:594px;top:180px;width:188px;height:212px;">
             <div>
               <div class="c-title">技能规划</div>
               <div class="badge-row" style="margin-top:5px;">
@@ -1905,31 +1703,31 @@
             <div class="c-vis">
               <img src="assets/arch-planning.webp" alt="FK 与避障路径规划" />
             </div>
-            <div class="c-note">多候选避障规划 · 柔性接 VLA</div>
+            <div class="c-note">传统避障规划 · 柔性接 VLA</div>
           </div>
 
-          <!-- 4. 安全内核 (x = 808, w = 188) -->
-          <div class="c-card safe-c" style="left:808px;top:186px;width:188px;height:212px;">
+          <!-- FIXED: Clean HTML/CSS Safety Kernel Shield Box with ZERO clipping! -->
+          <div class="c-card safe-c" style="left:808px;top:180px;width:188px;height:212px;">
             <div>
               <div class="c-title">安全内核</div>
               <div class="badge-row" style="margin-top:5px;">
                 <span class="src-pill on-dark"><b>自研核心</b><span>F1 Owner</span></span>
               </div>
             </div>
-            <div class="c-vis">
-              <svg viewBox="0 0 160 74" width="154" height="70">
-                <rect x="8" y="10" width="144" height="54" rx="6" fill="#162030" stroke="#38BDF8" stroke-width="1.5"/>
-                <path d="M30 24 l12 5 v11 c0 9 -12 14 -12 14 c0 0 -12 -5 -12 -14 v-11 z" fill="#0EA5E9" opacity="0.25" stroke="#38BDF8" stroke-width="1.8"/>
-                <path d="M25 37 l4 4 l8 -8" fill="none" stroke="#4ADE80" stroke-width="2.4" stroke-linecap="round"/>
-                <text x="52" y="33" font-size="11.5" font-weight="700" fill="#F8FAFC">唯一动作出口</text>
-                <text x="52" y="50" font-size="10.5" fill="#94A3B8">限位 · 防撞 · 授权锁</text>
+            <div class="safe-gate-box">
+              <svg viewBox="0 0 32 34" width="28" height="30" style="flex-shrink:0;">
+                <path d="M16 2 L29 7 V17 C29 25 16 31 16 31 C16 31 3 25 3 17 V7 Z" fill="#0EA5E9" fill-opacity="0.22" stroke="#38BDF8" stroke-width="2"/>
+                <path d="M10.5 16.5 L14.5 20.5 L22 12.5" fill="none" stroke="#4ADE80" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              <div class="safe-gate-text">
+                <strong>唯一动作出口</strong>
+                <span>授权 · 限位 · 防撞</span>
+              </div>
             </div>
-            <div class="c-note">统一核验放行，异常立即刹停</div>
+            <div class="c-note">传统安全兜底，异常即刹停</div>
           </div>
 
-          <!-- 5. 轨迹平滑 (x = 1022, w = 188) -->
-          <div class="c-card trad-c" style="left:1022px;top:186px;width:188px;height:212px;">
+          <div class="c-card trad-c" style="left:1022px;top:180px;width:188px;height:212px;">
             <div>
               <div class="c-title">轨迹平滑</div>
               <div class="badge-row" style="margin-top:5px;">
@@ -1945,11 +1743,10 @@
                 <text x="82" y="46" text-anchor="middle" font-family="monospace" font-size="10.5" font-weight="700" fill="#9A632E">S-Curve Jerk</text>
               </svg>
             </div>
-            <div class="c-note">在线限速限加，消除机械顿挫</div>
+            <div class="c-note">在线限速限加，平稳无顿挫</div>
           </div>
 
-          <!-- 6. F1 本体 (x = 1236, w = 188) -->
-          <div class="c-card trad-c" style="left:1236px;top:186px;width:188px;height:212px;background:#FBF7F2;">
+          <div class="c-card trad-c" style="left:1236px;top:180px;width:188px;height:212px;background:#FBF7F2;">
             <div>
               <div class="c-title">F1 机器人</div>
               <div class="badge-row" style="margin-top:5px;">
@@ -1962,17 +1759,16 @@
             <div class="c-note">轮式底盘 + 双 7 轴臂执行</div>
           </div>
 
-          <!-- ==================== LANE 3 HTML CARDS ==================== -->
-          <!-- Left: ASPIRE Experience Library -->
-          <div class="h-card embodied-c" style="left:380px;top:488px;width:542px;height:108px;">
+          <!-- ==================== LANE 3 CARDS ==================== -->
+          <div class="h-card embodied-c" style="left:380px;top:478px;width:544px;height:106px;">
             <div class="h-thumb" style="background:#ECF4FC;">
               <svg viewBox="0 0 110 74" width="104" height="70">
-                <rect x="14" y="14" width="82" height="14" rx="3" fill="#1D568C"/>
-                <rect x="14" y="32" width="82" height="14" rx="3" fill="#3B82F6"/>
-                <rect x="14" y="50" width="82" height="14" rx="3" fill="#93C5FD"/>
-                <text x="55" y="24" text-anchor="middle" font-size="9" font-weight="700" fill="#FFF">FROZEN SKILLS</text>
-                <text x="55" y="42" text-anchor="middle" font-size="9" font-weight="700" fill="#FFF">REPAIR GUIDES</text>
-                <text x="55" y="60" text-anchor="middle" font-size="9" font-weight="700" fill="#0F172A"> AUDIT HASH</text>
+                <rect x="14" y="13" width="82" height="14" rx="3" fill="#1D568C"/>
+                <rect x="14" y="31" width="82" height="14" rx="3" fill="#3B82F6"/>
+                <rect x="14" y="49" width="82" height="14" rx="3" fill="#93C5FD"/>
+                <text x="55" y="23" text-anchor="middle" font-size="8.5" font-weight="700" fill="#FFF">FROZEN SKILLS</text>
+                <text x="55" y="41" text-anchor="middle" font-size="8.5" font-weight="700" fill="#FFF">REPAIR GUIDES</text>
+                <text x="55" y="59" text-anchor="middle" font-size="8.5" font-weight="700" fill="#0F172A">AUDIT HASH</text>
               </svg>
             </div>
             <div class="h-main">
@@ -1981,12 +1777,11 @@
                 <span class="src-pill"><b>NVIDIA</b><span>ASPIRE</span></span>
                 <span class="src-pill"><b>清华·无问</b><span>RLinf Memory</span></span>
               </div>
-              <div class="c-note">沉淀冻结程序、原子技能与失败修复知识，跨轮次直接复用</div>
+              <div class="c-note">沉淀冻结程序、原子技能与修法，跨轮次直接复用</div>
             </div>
           </div>
 
-          <!-- Right: Run Records & Funnel Evaluation (with real 4242 console image) -->
-          <div class="h-card" style="left:980px;top:488px;width:444px;height:108px;">
+          <div class="h-card" style="left:980px;top:478px;width:444px;height:106px;">
             <div class="h-thumb">
               <img src="assets/arch-console.webp" alt="F1-infra 4242 控制台记录" />
             </div>
@@ -2000,140 +1795,121 @@
           </div>
         </div>
 
-        <!-- Bottom Technology Direction Summary -->
+        <!-- FIXED: Proportional 3-Column Strip, Clean Stacked Text, ZERO Overflow! -->
         <div class="tech-direction-bar">
           <div class="td-col">
-            <i class="swatch swatch-embodied"></i>
-            <strong>具身开源与模型层：</strong>
+            <strong>具身开源与模型层（负责泛化）</strong>
             <span>Meta SAM2 · 北大 PyRUA · 清华/无问 RPent · OpenAI Astra · NVIDIA ASPIRE</span>
           </div>
-          <div class="td-col">
-            <i class="swatch swatch-trad"></i>
-            <strong>工业规划控制层：</strong>
+          <div class="td-col td-trad">
+            <strong>工业规划控制层（负责确定性）</strong>
             <span>原生 IK · OMPL 采样避障 · Ruckig 在线平滑</span>
           </div>
-          <div class="td-col">
-            <i class="swatch swatch-safe"></i>
-            <strong>自研核心护城河：</strong>
-            <span>F1 Owner 安全内核 · F1 轮式双臂本体 · 4242 工作台</span>
+          <div class="td-col td-safe">
+            <strong>自研核心护城河（负责兜底与落地）</strong>
+            <span>F1 Owner 安全内核 · 自研 F1 轮式双臂 · 4242 工作台</span>
           </div>
         </div>
 
-        <footer class="slide-foot">
-          <span>技术栈构成：吸收头部开源具身生态，自研掌握安全控制内核与真机闭环适配</span>
-          <span class="page-no">04 / 05</span>
-        </footer>
+        <span class="page-badge">04 / 08</span>
       </section>
 
       <!-- ====================================================================
-           SLIDE 5 (#5): 03 工厂场景示例（九宫格上下料 · 自研 F1 真实 URDF 与实拍）
+           SLIDE 5 (#5): 03 实战动态拆解 1/4 —— 任务启动与选格定位
            ==================================================================== -->
-      <section class="slide" data-index="4" aria-label="工厂场景示例">
+      <section class="slide" data-index="4" aria-label="实战拆解 1 选格定位">
         <header class="slide-head">
           <div class="head-top">
-            <div class="kicker">03 · 工厂场景示例</div>
+            <div class="kicker">03 · 工厂实战拆解（1 / 4）· 九宫格泡沫纸上下料</div>
             <div class="legend">
-              <span class="legend-item"><i class="swatch swatch-trad"></i>慢路径（首格规划）</span>
-              <span class="legend-item"><i class="swatch swatch-embodied"></i>快路径（冻结复用）</span>
+              <span class="legend-item"><i class="swatch swatch-trad"></i>传统确定与兜底</span>
+              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身泛化</span>
+              <span class="legend-item"><i class="swatch swatch-safe"></i>唯一安全门</span>
             </div>
           </div>
-          <h2 class="slide-title">九宫格泡沫纸上下料：第 1 格规划，<em>第 2–9 格直接复用</em></h2>
+          <h2 class="slide-title">第一步 · 选格定位：<em>视觉泛化找余料</em>，确定性查库定路径</h2>
         </header>
 
-        <div class="case-layout">
-          <div class="case-left">
-            <div class="scene-photos">
-              <figure class="photo-frame">
-                <img src="assets/f1-factory.jpg" style="object-position:center 32%;" alt="F1 工厂实拍：面对九宫格料架取料" />
-                <figcaption class="photo-cap">工厂实拍 · F1 在九宫格料架前逐格夹取</figcaption>
+        <div class="case-stepper">
+          <button type="button" class="step-pill now" data-jump="4"><span class="s-num">01</span><span class="s-txt">选格与定位</span></button>
+          <button type="button" class="step-pill" data-jump="5"><span class="s-num">02</span><span class="s-txt">逼近夹取与判抓</span></button>
+          <button type="button" class="step-pill" data-jump="6"><span class="s-num">03</span><span class="s-txt">底盘转运与落袋</span></button>
+          <button type="button" class="step-pill" data-jump="7"><span class="s-num">04</span><span class="s-txt">复检清空与进化</span></button>
+        </div>
+
+        <div class="walk-grid">
+          <div class="walk-left">
+            <div class="stage-visual-pair">
+              <figure class="v-box">
+                <img src="assets/f1-factory.jpg" style="object-position:center 32%;" alt="F1 工厂料架现场" />
+                <figcaption class="v-cap">工厂现场 · F1 对准九宫格料架</figcaption>
               </figure>
-              <figure class="photo-frame">
-                <img src="assets/f1-sim.jpg" style="object-position:center center;" alt="工位仿真：九宫格料架到放置区料袋" />
-                <figcaption class="photo-cap">工位仿真 · 九宫格料架 → 放置区料袋布局</figcaption>
+              <figure class="v-box">
+                <img src="assets/arch-perception.webp" alt="SAM2 视觉定位" />
+                <figcaption class="v-cap">头部 / 腕部相机 + SAM2 分割定位</figcaption>
               </figure>
             </div>
 
-            <div class="workcell-loop-box">
-              <div>
-                <div class="rack-grid" id="rackGrid" aria-label="九宫格清料自动示意"></div>
-              </div>
-
-              <div class="loop-steps">
-                <div class="loop-head">
-                  <strong>单格清料往返闭环</strong>
-                  <span class="loop-status" id="rackStatus">第 6 / 9 格 · 快路径复用中</span>
+            <div class="rack-state-panel">
+              <div class="rack-grid" data-rack-preset="step1"></div>
+              <div class="rack-meta">
+                <h4>当前进度：扫描第 1 格</h4>
+                <p>从 9 个格口中检出有余料的格位，锁定最易抓取的泡沫纸外露边缘。</p>
+                <div class="state-kv">
+                  <div><span>当前格口</span><b style="color:var(--embodied);">CELL 01 · 扫描定位</b></div>
+                  <div><span>主控环节</span><b>④ 授权 → ① 感知 → ② 查库</b></div>
+                  <div><span>泛化边界</span><b>来料不齐 / 纸层软塌</b></div>
                 </div>
-
-                <div class="loop-cards">
-                  <div class="loop-step-card">
-                    <b><span>01</span>选格定位</b>
-                    <p>SAM2 识别余料格口与外露纸边</p>
-                  </div>
-                  <div class="loop-step-card">
-                    <b><span>02</span>夹紧抓净</b>
-                    <p>闭爪抽出，CAN 读数确认全部带出</p>
-                  </div>
-                  <div class="loop-step-card">
-                    <b><span>03</span>移至放置区</b>
-                    <p>轮式底盘移至料袋旁，松爪落袋</p>
-                  </div>
-                  <div class="loop-step-card">
-                    <b><span>04</span>返回下一格</b>
-                    <p>回架复检，循环直至九格全部清空</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="path-bridge">
-              <div class="bridge-card slow">
-                <strong>第 1 格 · 走慢路径</strong>
-                <span>首次面对新料架，Astra 规划抓法并经 ASPIRE 验证冻结</span>
-              </div>
-              <div class="bridge-card fast">
-                <strong>第 2–9 格 · 走快路径</strong>
-                <span>PyRUA 直接循环调用冻结程序清格，0 次大模型调用</span>
               </div>
             </div>
           </div>
 
-          <div class="case-right">
-            <figure class="f1-hero-card">
-              <div class="f1-hero-visual">
-                <img src="assets/f1-urdf.webp" alt="自研 F1 真实 URDF 三维模型" />
+          <div class="walk-right">
+            <div class="panel-box">
+              <div class="panel-title">
+                <h3>背后运行环节（谁在工作）</h3>
+                <span>传统先授权查库 · 具身解决非结构化识别</span>
               </div>
-              <figcaption class="f1-hero-bar">
-                <strong>自研 F1 轮式双臂机器人</strong>
-                <span>F1-4242 真实 URDF 构型（22 自由度上身 + 轮式底盘）</span>
-              </figcaption>
-            </figure>
+              <div class="exec-list">
+                <div class="exec-row">
+                  <span class="tag tag-safe">④ 安全内核 · 传统</span>
+                  <p><strong>4242 下发任务授权</strong>：F1 Owner 确认底盘停稳、急停未触发、关节反馈新鲜，才发放本次作业权限。</p>
+                </div>
+                <div class="exec-row">
+                  <span class="tag tag-emb">① 开放感知 · 具身</span>
+                  <p><strong>SAM 2 + 深度相机扫描料架</strong>：分割出目标格内的柔性泡沫纸堆，输出抓点位姿与置信度（不因低置信直接拦停）。</p>
+                </div>
+                <div class="exec-row">
+                  <span class="tag tag-trad">② 程序库 · 混合</span>
+                  <p><strong>查经验库分流</strong>：第 1 格无现成记录 → 交 <strong>Astra</strong> 规划抓法；第 2–9 格命中冻结程序 → <strong>0 次大模型</strong>直接执行。</p>
+                </div>
+              </div>
+            </div>
 
-            <div class="spec-card">
-              <table class="spec-table">
+            <div class="panel-box grow">
+              <div class="panel-title">
+                <h3>本步典型困难与分层解决</h3>
+                <span>哪层出错先在哪层解 · 绝不因小错整机停摆</span>
+              </div>
+              <table class="fault-table">
+                <thead>
+                  <tr><th>现场可能遇到的困难</th><th>谁先处理</th><th>怎么解决 / 升级策略</th></tr>
+                </thead>
                 <tbody>
                   <tr>
-                    <th>本体构型</th>
-                    <td>轮式底盘 + 5 轴 Z 型折叠升降躯干 + 3 轴头 + 双臂</td>
+                    <td class="issue">料格阴影 / 反光导致找不到纸边</td>
+                    <td class="owner"><span class="tag tag-emb">① 感知 / ② 程序</span></td>
+                    <td>按上次标定格口重扫；仍看不清则由程序微调腕部相机换视角补拍；再无解才交 <strong>⑤ Astra</strong> 指认抓点。</td>
                   </tr>
                   <tr>
-                    <th>双臂自由度</th>
-                    <td>左右各 7 自由度机械臂，覆盖九宫格高低全部层位</td>
+                    <td class="issue">泡沫纸歪斜堆叠、超出格口</td>
+                    <td class="owner"><span class="tag tag-emb">① SAM 2 泛化</span></td>
+                    <td>传统固定坐标必然抓偏；SAM 2 按实时点云重估外露纸边朝向，动态生成当前格抓取位姿。</td>
                   </tr>
                   <tr>
-                    <th>移动方式</th>
-                    <td>AGV 轮式自主移动，料架与放置区间连续往返</td>
-                  </tr>
-                  <tr>
-                    <th>末端与感知</th>
-                    <td>平行夹爪（CAN 接触反馈）+ 头部/双腕多路深度相机</td>
-                  </tr>
-                  <tr>
-                    <th>软件框架</th>
-                    <td class="hl">自研 F1 Harness（PyRUA/RPent 编排 + Astra 兜底）</td>
-                  </tr>
-                  <tr>
-                    <th>安全内核</th>
-                    <td>F1 Owner 唯一动作出口 + Ruckig 在线轨迹平滑</td>
+                    <td class="issue">图像略旧或相机/关节时间戳微偏</td>
+                    <td class="owner"><span class="tag tag-safe">④ 安全内核</span></td>
+                    <td>仅记告警并降置信度、不终止任务；发布动作前内核用最新实测再复核一遍，旧图不会引起撞机。</td>
                   </tr>
                 </tbody>
               </table>
@@ -2141,10 +1917,327 @@
           </div>
         </div>
 
-        <footer class="slide-foot">
-          <span>自研 F1 轮式机器人（真实 URDF 构型与工厂实拍） · 九宫格上下料落地示例</span>
-          <span class="page-no">05 / 05</span>
-        </footer>
+        <span class="page-badge">05 / 08</span>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 6 (#6): 03 实战动态拆解 2/4 —— 逼近夹取与判抓
+           ==================================================================== -->
+      <section class="slide" data-index="5" aria-label="实战拆解 2 逼近夹取与判抓">
+        <header class="slide-head">
+          <div class="head-top">
+            <div class="kicker">03 · 工厂实战拆解（2 / 4）· 九宫格泡沫纸上下料</div>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch swatch-trad"></i>传统避障与安全兜底</span>
+              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身柔性操作</span>
+              <span class="legend-item"><i class="swatch swatch-safe"></i>唯一安全门</span>
+            </div>
+          </div>
+          <h2 class="slide-title">第二步 · 夹紧抽出：<em class="trad">传统防撞与平滑兜底</em>，<em>具身攻克柔性抓持</em></h2>
+        </header>
+
+        <div class="case-stepper">
+          <button type="button" class="step-pill done" data-jump="4"><span class="s-num">✓</span><span class="s-txt">选格与定位</span></button>
+          <button type="button" class="step-pill now" data-jump="5"><span class="s-num">02</span><span class="s-txt">逼近夹取与判抓</span></button>
+          <button type="button" class="step-pill" data-jump="6"><span class="s-num">03</span><span class="s-txt">底盘转运与落袋</span></button>
+          <button type="button" class="step-pill" data-jump="7"><span class="s-num">04</span><span class="s-txt">复检清空与进化</span></button>
+        </div>
+
+        <div class="walk-grid">
+          <div class="walk-left">
+            <div class="stage-visual-pair">
+              <figure class="v-box">
+                <img src="assets/arch-planning.webp" alt="OMPL 防撞轨迹规划" />
+                <figcaption class="v-cap">OMPL + IK 扫掠碰撞检查与多候选轨迹</figcaption>
+              </figure>
+              <figure class="v-box">
+                <img src="assets/f1-factory.jpg" style="object-position:center 46%;" alt="F1 伸臂探入料格夹取" />
+                <figcaption class="v-cap">双臂探入窄格夹紧泡沫纸并回撤</figcaption>
+              </figure>
+            </div>
+
+            <div class="rack-state-panel">
+              <div class="rack-grid" data-rack-preset="step2"></div>
+              <div class="rack-meta">
+                <h4>当前进度：第 1 格夹取与判抓</h4>
+                <p>手臂沿无碰撞轨迹探入窄格闭爪，靠 CAN 夹爪读数 + 视觉双判确认已牢牢抓净。</p>
+                <div class="state-kv">
+                  <div><span>当前动作</span><b style="color:var(--trad);">入格 → 闭爪 → 抽离</b></div>
+                  <div><span>主控环节</span><b>③ 规划/VLA → ④ 内核 → ① 判抓</b></div>
+                  <div><span>安全底线</span><b>绝不擦碰金属格壁</b></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="walk-right">
+            <div class="panel-box">
+              <div class="panel-title">
+                <h3>背后运行环节（谁在工作）</h3>
+                <span>传统管路径防撞与平滑 · 具身管柔性接触</span>
+              </div>
+              <div class="exec-list">
+                <div class="exec-row">
+                  <span class="tag tag-trad">③ 规划 · 传统+VLA</span>
+                  <p><strong>OMPL + IK 生成避障轨迹</strong>，避开料架隔板；进入最后几厘米柔性夹持泡沫纸时，可无缝切换 <strong>π0.5 / RLT 策略</strong>。</p>
+                </div>
+                <div class="exec-row">
+                  <span class="tag tag-safe">④ 安全内核 · 传统</span>
+                  <p><strong>F1 Owner 发布前复核</strong>：用最新关节与场景扫掠重查限位和格壁碰撞，经 <strong>Ruckig</strong> 平滑后下发，同时后台预算转运路径。</p>
+                </div>
+                <div class="exec-row">
+                  <span class="tag tag-emb">① 判抓 · 具身证据</span>
+                  <p><strong>CAN + 视觉双验证</strong>：夹爪停在“未张满、未闭死”的稳定区间，叠加闭爪前目标图像确认 <code>held = 是</code>。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-box grow">
+              <div class="panel-title">
+                <h3>本步典型困难与分层解决</h3>
+                <span>候选自动切换 · 预算内重试 · 失败才升级</span>
+              </div>
+              <table class="fault-table">
+                <thead>
+                  <tr><th>现场可能遇到的困难</th><th>谁先处理</th><th>怎么解决 / 升级策略</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="issue">入格姿态会擦碰上下层隔板</td>
+                    <td class="owner"><span class="tag tag-trad">③ 传统规划器</span></td>
+                    <td>自动切换下一候选抓姿或开启关节空间搜索，绝不轻易终止；全部候选无解才交 <strong>⑤ Astra</strong> 换入格方式。</td>
+                  </tr>
+                  <tr>
+                    <td class="issue">泡沫纸太软打滑导致抓空</td>
+                    <td class="owner"><span class="tag tag-trad">② 程序重试</span></td>
+                    <td>CAN 读数闭到底立刻判空；程序在限次预算内重新观测并微调深度再抓；连空才升 <strong>⑤ Astra</strong> 改抓法。</td>
+                  </tr>
+                  <tr>
+                    <td class="issue">夹爪探入格内挡住头部相机</td>
+                    <td class="owner"><span class="tag tag-emb">① 感知判抓</span></td>
+                    <td>不强求闭爪瞬间看见纸；以夹爪 CAN 读数为主，小幅回撤出格后再补拍一帧确认泡沫纸随手带出。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <span class="page-badge">06 / 08</span>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 7 (#7): 03 实战动态拆解 3/4 —— 底盘转运与放置确认
+           ==================================================================== -->
+      <section class="slide" data-index="6" aria-label="实战拆解 3 底盘转运与落袋">
+        <header class="slide-head">
+          <div class="head-top">
+            <div class="kicker">03 · 工厂实战拆解（3 / 4）· 九宫格泡沫纸上下料</div>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch swatch-trad"></i>传统确定转运与兜底</span>
+              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身落袋复核</span>
+              <span class="legend-item"><i class="swatch swatch-safe"></i>唯一安全门</span>
+            </div>
+          </div>
+          <h2 class="slide-title">第三步 · 运料落袋：<em class="trad">轮式底盘稳定转运</em>，实测确认释放与异常断点恢复</h2>
+        </header>
+
+        <div class="case-stepper">
+          <button type="button" class="step-pill done" data-jump="4"><span class="s-num">✓</span><span class="s-txt">选格与定位</span></button>
+          <button type="button" class="step-pill done" data-jump="5"><span class="s-num">✓</span><span class="s-txt">逼近夹取与判抓</span></button>
+          <button type="button" class="step-pill now" data-jump="6"><span class="s-num">03</span><span class="s-txt">底盘转运与落袋</span></button>
+          <button type="button" class="step-pill" data-jump="7"><span class="s-num">04</span><span class="s-txt">复检清空与进化</span></button>
+        </div>
+
+        <div class="walk-grid">
+          <div class="walk-left">
+            <div class="stage-visual-pair">
+              <figure class="v-box">
+                <img src="assets/f1-sim.jpg" alt="工位仿真转运路线" />
+                <figcaption class="v-cap">工位布局 · 料架到放置区料袋短距往返</figcaption>
+              </figure>
+              <figure class="v-box">
+                <img src="assets/f1-urdf.webp" style="object-fit:contain;padding:4px;" alt="F1 轮式底盘与双臂协同" />
+                <figcaption class="v-cap">自研 F1 · AGV 轮式移动 + 双臂协同转运</figcaption>
+              </figure>
+            </div>
+
+            <div class="rack-state-panel">
+              <div class="rack-grid" data-rack-preset="step3"></div>
+              <div class="rack-meta">
+                <h4>当前进度：第 6 格运往放置区</h4>
+                <p>第 1–5 格已清空，底盘持物平稳移动至料袋上方松爪，由实测读数确认物料落袋。</p>
+                <div class="state-kv">
+                  <div><span>当前格口</span><b style="color:var(--embodied);">已清 5 格 · 第 6 格运料</b></div>
+                  <div><span>主控环节</span><b>③ 复用路径 → ④ 复核 → ① 确认</b></div>
+                  <div><span>硬性红线</span><b>超限 / 失联仅由 ④ 刹停</b></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="walk-right">
+            <div class="panel-box">
+              <div class="panel-title">
+                <h3>背后运行环节（谁在工作）</h3>
+                <span>传统导航与安全内核全程护航 · 实测确认完工</span>
+              </div>
+              <div class="exec-list">
+                <div class="exec-row">
+                  <span class="tag tag-trad">③/④ 协同 · 传统</span>
+                  <p><strong>复用预算轨迹 + 重扫防撞</strong>：直接调用夹取阶段后台算好的收臂路径，F1 Owner 按在手泡沫纸体积重扫防撞后放行。</p>
+                </div>
+                <div class="exec-row">
+                  <span class="tag tag-trad">AGV 底盘 · 传统</span>
+                  <p><strong>确定性跨工位移动</strong>：轮式底盘沿标定安全走廊驶向放置区料袋，到达后机械臂平稳下降并张开夹爪。</p>
+                </div>
+                <div class="exec-row">
+                  <span class="tag tag-emb">① 确认 · 闭环证据</span>
+                  <p><strong>拒绝“发了指令就算成功”</strong>：核验夹爪 CAN 已完全张开 + 视觉确认泡沫纸静止落入料袋，输出带回执的成功状态。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-box grow">
+              <div class="panel-title">
+                <h3>本步典型困难与分层解决</h3>
+                <span>中途掉落断点续跑 · 物理越界立即撤权</span>
+              </div>
+              <table class="fault-table">
+                <thead>
+                  <tr><th>现场可能遇到的困难</th><th>谁先处理</th><th>怎么解决 / 升级策略</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="issue">转运途中泡沫纸松脱掉落</td>
+                    <td class="owner"><span class="tag tag-safe">④ 内核 + ② 程序</span></td>
+                    <td>CAN 读数突变，内核先稳停手臂防甩飞；程序直接断点回到「看」重新定位拾取，不从头重跑任务。</td>
+                  </tr>
+                  <tr>
+                    <td class="issue">料袋堆高 / 袋口位置发生偏移</td>
+                    <td class="owner"><span class="tag tag-trad">③ 规划 + ① 感知</span></td>
+                    <td>将终点从“单点”放宽为袋口安全区域，感知识别空位后微调释放高度，避免顶翻料袋。</td>
+                  </tr>
+                  <tr>
+                    <td class="issue">关节反馈中断 / 越界 / 人工急停</td>
+                    <td class="owner"><span class="tag tag-safe">④ 安全内核唯一</span></td>
+                    <td><strong>立即撤销动作权限并锁停</strong>，用实测确认停稳；这是唯一会让整条任务停下等待人工确认的一类错误。</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <span class="page-badge">07 / 08</span>
+      </section>
+
+      <!-- ====================================================================
+           SLIDE 8 (#8): 03 实战动态拆解 4/4 —— 复检清空与经验固化（闭环收束）
+           ==================================================================== -->
+      <section class="slide" data-index="7" aria-label="实战拆解 4 复检清空与进化">
+        <header class="slide-head">
+          <div class="head-top">
+            <div class="kicker">03 · 工厂实战拆解（4 / 4）· 九宫格泡沫纸上下料</div>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch swatch-trad"></i>传统确定性复用</span>
+              <span class="legend-item"><i class="swatch swatch-embodied"></i>具身经验进化</span>
+            </div>
+          </div>
+          <h2 class="slide-title">第四步 · 复检进化：<em>九格全部清空</em>，把首次泛化沉淀为确定性资产</h2>
+        </header>
+
+        <div class="case-stepper">
+          <button type="button" class="step-pill done" data-jump="4"><span class="s-num">✓</span><span class="s-txt">选格与定位</span></button>
+          <button type="button" class="step-pill done" data-jump="5"><span class="s-num">✓</span><span class="s-txt">逼近夹取与判抓</span></button>
+          <button type="button" class="step-pill done" data-jump="6"><span class="s-num">✓</span><span class="s-txt">底盘转运与落袋</span></button>
+          <button type="button" class="step-pill now" data-jump="7"><span class="s-num">04</span><span class="s-txt">复检清空与进化</span></button>
+        </div>
+
+        <div class="walk-grid">
+          <div class="walk-left">
+            <div class="stage-visual-pair">
+              <figure class="v-box">
+                <img src="assets/arch-console.webp" alt="F1-infra 4242 运行评测" />
+                <figcaption class="v-cap">F1-infra 4242 · 回执落盘与阶段漏斗评测</figcaption>
+              </figure>
+              <figure class="v-box">
+                <img src="assets/f1-factory.jpg" style="object-position:center 22%;" alt="F1 现场连续清格" />
+                <figcaption class="v-cap">连续作业 · 复检清空并自动推进至第 9 格</figcaption>
+              </figure>
+            </div>
+
+            <div class="rack-state-panel">
+              <div class="rack-grid" id="rackGridFinal"></div>
+              <div class="rack-meta">
+                <h4 id="rackFinalTitle">动态演进：1 → 9 格清空</h4>
+                <p>放完立刻回架复检：原格有余料继续抓净，确认全空后自动推进下一格，直至 9 格全空。</p>
+                <div class="state-kv">
+                  <div><span>清料状态</span><b id="rackFinalStatus" style="color:var(--ok);">9 / 9 格全部清空</b></div>
+                  <div><span>大模型调用</span><b style="color:var(--embodied);">第 2–9 格 = 0 次</b></div>
+                  <div><span>沉淀产出</span><b>冻结程序 + 失败修法</b></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="walk-right">
+            <div class="panel-box">
+              <div class="panel-title">
+                <h3>背后运行环节（谁在工作）</h3>
+                <span>循环复检保质量 · 独立验证保经验不污染</span>
+              </div>
+              <div class="exec-list">
+                <div class="exec-row">
+                  <span class="tag tag-trad">② 循环复检 · 传统</span>
+                  <p><strong>原格复检 → 切下一格</strong>：底盘回位复看原格；仍有碎纸继续抓净，确认清空才推进格号，被遮挡格口标为待复检。</p>
+                </div>
+                <div class="exec-row">
+                  <span class="tag tag-safe">⑥ 评测 · 4242 自研</span>
+                  <p><strong>自动化漏斗统计</strong>：每格执行结束后自动记录到达阶段、单格耗时、重试次数与大模型调用次数，形成可审计证据链。</p>
+                </div>
+                <div class="exec-row">
+                  <span class="tag tag-emb">⑥ 晋升 · ASPIRE</span>
+                  <p><strong>提出 → 独立验证 → 晋升复用</strong>：新抓法与修法须经独立 Verifier 复现通过才冻结写入经验库，出现反例自动降级。</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-box grow">
+              <div class="panel-title">
+                <h3>全任务收益收敛：为什么这套融合框架能真正进工厂？</h3>
+                <span>越用越稳 · 越换产线成本越低</span>
+              </div>
+              <div class="conv-grid">
+                <div class="conv-card c-emb">
+                  <div>
+                    <h4>第 1 格 · 新场景首跑</h4>
+                    <p>由具身感知与 Astra 泛化探索抓法，解决传统示教无法应对的来料变化，并经 ASPIRE 独立验证。</p>
+                  </div>
+                  <div class="metric" style="color:var(--embodied);">具身泛化开路 → 冻结程序</div>
+                </div>
+
+                <div class="conv-card c-trad">
+                  <div>
+                    <h4>第 2–9 格 · 重复清格</h4>
+                    <p>直接走传统确定性冻结程序 + F1 Owner 安全内核，节拍稳定可控，彻底摆脱在线大模型延迟与抖动。</p>
+                  </div>
+                  <div class="metric" style="color:var(--trad);">0 次大模型 · 工业级稳定</div>
+                </div>
+
+                <div class="conv-card c-safe">
+                  <div>
+                    <h4>换新物料 / 新工位</h4>
+                    <p>安全内核、漏斗评测、底盘转运与抓放原子技能全部跨任务复用，只需增量适配感知与柔性接触技能。</p>
+                  </div>
+                  <div class="metric">一次底座投入 · 长期复利</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span class="page-badge">08 / 08</span>
       </section>
 
     </main>
@@ -2183,7 +2276,7 @@
         });
 
         if (progressFill) {
-          progressFill.style.width = (((current + 1) / total) * 100).toFixed(1) + '%';
+          progressFill.style.width = (((current + 1) / total) * 100).toFixed(2) + '%';
         }
 
         if (updateHash !== false) {
@@ -2247,7 +2340,7 @@
       window.addEventListener('wheel', function (e) {
         if (Math.abs(e.deltaY) < 26) return;
         var now = Date.now();
-        if (now - wheelLock < 520) return;
+        if (now - wheelLock < 500) return;
         wheelLock = now;
         goTo(current + (e.deltaY > 0 ? 1 : -1));
       }, { passive: true });
@@ -2263,6 +2356,54 @@
 
       window.addEventListener('resize', fitViewport);
       window.addEventListener('hashchange', syncHash);
+
+      /* ------------------------------------------------------------------
+         RENDER 3x3 RACK STATES FOR SLIDES 5, 6, 7, 8
+         ------------------------------------------------------------------ */
+      function buildRackHTML(clearedUntil, activeIdx, activeMode) {
+        var html = '';
+        for (var c = 1; c <= 9; c++) {
+          var lbl = '0' + c;
+          if (c <= clearedUntil) {
+            html += '<div class="rack-cell cleared"><span class="idx">' + lbl + '</span><span class="done-mark">已空</span></div>';
+          } else if (c === activeIdx) {
+            var cls = activeMode === 'trad' ? 'active-trad' : 'active-emb';
+            var bc = activeMode === 'trad' ? '#9A632E' : '#1D568C';
+            html += '<div class="rack-cell ' + cls + '"><span class="idx">' + lbl + '</span>' +
+              '<div class="foam-sheets"><i style="border-color:' + bc + '"></i><i style="border-color:' + bc + '"></i><i style="border-color:' + bc + '"></i></div></div>';
+          } else {
+            html += '<div class="rack-cell stocked"><span class="idx">' + lbl + '</span>' +
+              '<div class="foam-sheets"><i></i><i></i><i></i></div></div>';
+          }
+        }
+        return html;
+      }
+
+      // Static preset racks for Slides 5, 6, 7
+      document.querySelectorAll('[data-rack-preset]').forEach(function (el) {
+        var p = el.getAttribute('data-rack-preset');
+        if (p === 'step1') el.innerHTML = buildRackHTML(0, 1, 'emb');
+        else if (p === 'step2') el.innerHTML = buildRackHTML(0, 1, 'trad');
+        else if (p === 'step3') el.innerHTML = buildRackHTML(5, 6, 'emb');
+      });
+
+      // Auto-clearing sweep animation for Slide 8
+      var rackFinal = document.getElementById('rackGridFinal');
+      var rackFinalStatus = document.getElementById('rackFinalStatus');
+      var finalStep = 10; // Print & initial default: all 9 cleared
+
+      function renderFinalRack(step) {
+        if (!rackFinal) return;
+        if (step > 9) {
+          rackFinal.innerHTML = buildRackHTML(9, -1, 'emb');
+          if (rackFinalStatus) rackFinalStatus.textContent = '9 / 9 格全部清空 ✓';
+        } else {
+          rackFinal.innerHTML = buildRackHTML(step - 1, step, step === 1 ? 'emb' : 'trad');
+          if (rackFinalStatus) {
+            rackFinalStatus.textContent = step === 1 ? '第 1 格 · 具身泛化首跑' : '第 ' + step + ' / 9 格 · 确定程序复用';
+          }
+        }
+      }
 
       /* Sequential Highlights */
       var coverNodes = Array.prototype.slice.call(document.querySelectorAll('[data-cnode]'));
@@ -2280,72 +2421,30 @@
       var macroStep = 0;
 
       function stepMacro() {
-        macroNodes.forEach(function (el, k) {
-          el.classList.toggle('is-active', k === macroStep);
-        });
-        macroLinks.forEach(function (ln, k) {
-          if (ln) ln.classList.toggle('is-active', k === macroStep);
-        });
-        if (macroFb) {
-          macroFb.classList.toggle('is-active', macroStep === 3);
-        }
+        macroNodes.forEach(function (el, k) { el.classList.toggle('is-active', k === macroStep); });
+        macroLinks.forEach(function (ln, k) { if (ln) ln.classList.toggle('is-active', k === macroStep); });
+        if (macroFb) macroFb.classList.toggle('is-active', macroStep === 3);
         macroStep = (macroStep + 1) % 5;
-      }
-
-      var rackGrid = document.getElementById('rackGrid');
-      var rackStatus = document.getElementById('rackStatus');
-      var activeCell = 6;
-
-      function renderRack(stepCell) {
-        if (!rackGrid) return;
-        var html = '';
-        for (var c = 1; c <= 9; c++) {
-          var label = '0' + c;
-          if (c < stepCell) {
-            html += '<div class="rack-cell cleared"><span class="idx">' + label + '</span><span class="done-mark">已空</span></div>';
-          } else if (c === stepCell) {
-            var cls = c === 1 ? 'active-slow' : 'active-fast';
-            var barBorder = c === 1 ? '#9A632E' : '#1D568C';
-            html += '<div class="rack-cell ' + cls + '"><span class="idx">' + label + '</span>' +
-              '<div class="foam-sheets"><i style="border-color:' + barBorder + '"></i><i style="border-color:' + barBorder + '"></i><i style="border-color:' + barBorder + '"></i></div></div>';
-          } else {
-            html += '<div class="rack-cell stocked"><span class="idx">' + label + '</span>' +
-              '<div class="foam-sheets"><i></i><i></i><i></i></div></div>';
-          }
-        }
-        rackGrid.innerHTML = html;
-
-        if (rackStatus) {
-          if (stepCell > 9) {
-            rackStatus.textContent = '9 / 9 格已全部清空 · 任务完成';
-          } else if (stepCell === 1) {
-            rackStatus.textContent = '第 1 / 9 格 · 慢路径规划中';
-          } else {
-            rackStatus.textContent = '第 ' + stepCell + ' / 9 格 · 快路径复用中';
-          }
-        }
       }
 
       setInterval(function () {
         if (current === 0 && coverNodes.length) {
           coverIdx = (coverIdx + 1) % coverNodes.length;
-          coverNodes.forEach(function (n, k) {
-            n.classList.toggle('lit', k === coverIdx);
-          });
+          coverNodes.forEach(function (n, k) { n.classList.toggle('lit', k === coverIdx); });
         } else if (current === 2) {
           stepMacro();
-        } else if (current === 4) {
-          activeCell = activeCell >= 10 ? 1 : activeCell + 1;
-          renderRack(activeCell);
+        } else if (current === 7) {
+          finalStep = finalStep >= 11 ? 1 : finalStep + 1;
+          renderFinalRack(finalStep);
         }
-      }, 1450);
+      }, 1350);
 
       window.addEventListener('beforeprint', function () {
-        renderRack(6);
+        renderFinalRack(10);
       });
 
       fitViewport();
-      renderRack(6);
+      renderFinalRack(10);
       syncHash();
     })();
   </script>

@@ -4,7 +4,7 @@
 
 目前有：
 
-- [具身智能 × 传统自动化：融合落地框架（全屏 PPT 版）](embodied-ppt/)（2026-11-25）
+- [具身智能 × 传统自动化：融合落地框架（全屏 PPT 版）](embodied-ppt/)（2026-11-25 · 8 页全屏）
 - [具身智能 × 传统自动化：融合落地框架（Neon）](neon-embodied-deck/)（2026-11-25 · Gemini 4 Neon）
 - [具身与传统：技术路线与流程框架](factory-briefing/index.html)（2026-11-25）
 - [具身智能 × 传统自动化：融合落地框架](embodied-deck/)（2026-11-25）
